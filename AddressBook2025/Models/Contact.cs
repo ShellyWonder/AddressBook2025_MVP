@@ -1,5 +1,5 @@
 ﻿using AddressBook2025.Data;
-using Mono.TextTemplating;
+using AddressBook2025.Client.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -48,6 +48,8 @@ namespace AddressBook2025.Models
 
         [Required]
         [Display(Name = "Zip Code")]
+        [StringLength(10)]
+        [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "Please enter a 5 digit or 9 digit US Postal Code")]
         [DataType(DataType.PostalCode)]
         public int ZipCode { get; set; }
 
@@ -55,7 +57,7 @@ namespace AddressBook2025.Models
         [EmailAddress]
         public string? Email { get; set; }
 
-        [Required]
+       
         [Phone]
         [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
@@ -70,7 +72,9 @@ namespace AddressBook2025.Models
 
         [Required]
         public string? AppUserId { get; set; }
-        public virtual ApplicationUser? ApplicationUser { get; set; }
+
+        //Creates route; Foreign key to the ApplicationUser table
+        public virtual ApplicationUser? AppUser { get; set; }
 
         public Guid? ImageId { get; set; }
         public virtual ImageUpload? Image { get; set; }
