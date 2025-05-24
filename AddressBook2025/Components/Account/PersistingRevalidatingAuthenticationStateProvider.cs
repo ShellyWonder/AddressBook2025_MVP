@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
-using AddressBook2025.Client;
+using AddressBook2025.Client.Models;
 using AddressBook2025.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
