@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AddressBook2025.Client.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -30,6 +31,7 @@ namespace AddressBook2025.Client
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
                 new Claim(ClaimTypes.Name, userInfo.Email),
                 new Claim(ClaimTypes.Email, userInfo.Email),
+                new Claim(nameof(UserInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
                 new Claim("FirstName", userInfo.FirstName),
                 new Claim("LastName", userInfo.LastName)
                 ];

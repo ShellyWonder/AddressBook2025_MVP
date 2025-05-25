@@ -88,17 +88,19 @@ namespace AddressBook2025.Components.Account
             {
                 var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
                 var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+                var profilePictureUrl = principal.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
                 var firstName = principal.FindFirst("FirstName")?.Value;
                 var lastName = principal.FindFirst("LastName")?.Value;
 
-                if (userId != null && email != null)
+                if (userId != null && email != null && firstName != null && lastName != null && profilePictureUrl != null)
                 {
                     state.PersistAsJson(nameof(UserInfo), new UserInfo
                     {
                         UserId = userId,
                         Email = email,
+                        ProfilePictureUrl = profilePictureUrl ?? string.Empty,
                         FirstName = firstName ?? string.Empty,
-                        LastName = lastName ?? string.Empty
+                        LastName = lastName ?? string.Empty 
                     });
                 }
             }

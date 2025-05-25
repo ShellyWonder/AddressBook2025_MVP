@@ -1,4 +1,4 @@
-namespace AddressBook2025.Client
+namespace AddressBook2025.Client.Models
 {
     // Add properties to this class and update the server and client AuthenticationStateProviders
     // to expose more information about the authenticated user to the client.
@@ -8,5 +8,6 @@ namespace AddressBook2025.Client
         public required string Email { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
+        public required string ProfilePictureUrl { get; set; }
     }
 }
