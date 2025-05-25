@@ -16,3 +16,10 @@
 .dropdown:has(.nav-link.active) .dropdown-toggle {
     color: var(--bs-navbar-active-color);
 }
+.profile-picture {
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+    /*round*/
+    border-radius: 50%;
+    border: solid 1px gray;
+}
