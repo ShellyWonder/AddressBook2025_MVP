@@ -1,13 +1,10 @@
-﻿using AddressBook2025.Data;
-using AddressBook2025.Client.Models.Enums;
+﻿using AddressBook2025.Client.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using AddressBook2025.Client.Models.DTOs;
-using AddressBook2025.Helpers;
 
-namespace AddressBook2025.Models
+namespace AddressBook2025.Client.Models.DTOs
 {
-    public class Contact
+    public class ContactDTO
     {
         private DateTimeOffset? _created;
         private DateTimeOffset? _birthDate;
@@ -30,7 +27,7 @@ namespace AddressBook2025.Models
 
         [Display(Name = "Birthdate")]
         [DataType(DataType.Date)]
-        public DateTimeOffset BirthDate 
+        public DateTimeOffset BirthDate
         {
             get => (DateTimeOffset)_birthDate!;
             set => _birthDate = value.ToUniversalTime();
@@ -59,7 +56,7 @@ namespace AddressBook2025.Models
         [EmailAddress]
         public string? Email { get; set; }
 
-       
+
         [Phone]
         [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
@@ -72,45 +69,8 @@ namespace AddressBook2025.Models
             set => _created = value.ToUniversalTime();
         }
 
-        [Required]
-        public string? AppUserId { get; set; }
-
-        //Creates route; Foreign key to the ApplicationUser table
-        public virtual ApplicationUser? AppUser { get; set; }
-
-        public Guid? ImageId { get; set; }
-        public virtual ImageUpload? Image { get; set; }
-
-        public virtual ICollection<Category> Categories { get; set; } = [];
-
-        //Mapping Contact to ContactDTO
-        public ContactDTO ToDTO() 
-        {
-            ContactDTO dto = new()
-            {
-                Id = this.Id,
-                FirstName = this.FirstName,
-                LastName = this.LastName,
-                BirthDate = this.BirthDate.ToLocalTime(),
-                Address1 = this.Address1,
-                Address2 = this.Address2,
-                City = this.City,
-                State = this.State,
-                ZipCode = this.ZipCode,
-                Email = this.Email,
-                PhoneNumber = this.PhoneNumber,
-                Created = this.Created.ToLocalTime(),
-                ProfileImageUrl = this.ImageId.HasValue ? $"/uploads/{ImageId}" : ImageHelper.DefaultProfilePictureUrl
-            };
-            foreach (Category category in Categories)
-            {
-                //prevent circular reference
-                category.Contacts.Clear();
-                dto.Categories.Add(category.ToDTO());
-            }
-
-
-            return dto;
-        }
+        public string? ProfileImageUrl { get; set; }
+      public virtual ICollection<CategoryDTO> Categories { get; set; } = [];
     }
 }
+

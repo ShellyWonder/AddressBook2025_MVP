@@ -14,6 +14,9 @@ namespace AddressBook2025.Data
 
         //navigation property within Db for profile picture
         public virtual ImageUpload? ProfilePicture { get; set; } //navigation property for profile picture
+
+        public virtual ICollection<Contact> Contacts { get; set; } = [];
+        public virtual ICollection<Category> Categories { get; set; } = [];
     }
 
 }
