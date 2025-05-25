@@ -1,0 +1,31 @@
+﻿@* Categories Index *@
+@page "/categories"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Address Book | Categories</PageTitle>
+
+<div class="container">
+    <EditForm Model="@newCategory" @* class="form-horizontal" OnValidSubmit="HandleValidSubmit" *@>
+        <DataAnnotationsValidator />
+        @*    <ValidationSummary class="text-danger" /> *@
+
+        <ul class="list-group my-3">
+            <li class="list-group-item">
+                <label for="CategoryName" class="form-label">Add a Category</label>
+                <div class="d-flex gap-3">
+                    <InputText @bind-Value="newCategory.Name" class="form-control" id="CategoryName" placeholder="Enter category name" />
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-floppy"></i></button>
+                </div>
+
+            </li>
+        </ul>
+    </EditForm>
+
+</div>
+
+
+
+@code {
+    private CategoryDTO newCategory = new CategoryDTO();
+}

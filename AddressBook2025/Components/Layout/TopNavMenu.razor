@@ -1,4 +1,5 @@
 ﻿@*TopNavMenuComponent*@
+@using AddressBook2025.Helpers
 
 <nav class="navbar navbar-expand-lg navStyle" data-bs-theme="dark">
     <div class="container-xxl">
@@ -24,6 +25,20 @@
                         <span>Template Themes</span>
                     </NavLink>
                 </li>
+                <AuthorizeView>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/contacts" Match="NavLinkMatch.All">
+                            <i class="bi bi-people"></i>
+                            <span>Contacts</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/categories" Match="NavLinkMatch.All">
+                            <i class="bi bi-tags"></i>
+                            <span>Categories</span>
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item dropdown">
@@ -35,8 +50,8 @@
                         <AuthorizeView>
                             <Authorized>
                               @{
-                                    string firstName = context.User.FindFirst("given_name")?.Value ?? string.Empty;
-                                    string lastName = context.User.FindFirst("family_name")?.Value ?? string.Empty;
+                                    string firstName = context.User.FindFirst("FirstName")?.Value ?? string.Empty;
+                                    string lastName = context.User.FindFirst("LastName")?.Value ?? string.Empty;
                                     string profilePicture = context.User.FindFirst("ProfilePictureUrl")?.Value ?? string.Empty;
                               }
 
@@ -79,5 +94,6 @@
 </nav>
 
 @code {
+
 
 }
