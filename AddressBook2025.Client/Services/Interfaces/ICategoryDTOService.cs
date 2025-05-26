@@ -6,5 +6,8 @@ namespace AddressBook2025.Client.Services.Interfaces
     {
         //create a new category
         Task<CategoryDTO> CreateCategoryAsync(CategoryDTO category, string userId);
+
+        //get (read) all categories for a user
+        Task<List<CategoryDTO>> GetCategoriesAsync(string userId);
     }
 }

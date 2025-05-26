@@ -19,7 +19,12 @@ namespace AddressBook2025.Services
         newCategory = await repository.CreateCategoryAsync(newCategory);
             return newCategory.ToDTO();
         }
-
+        // List of entities and transform them to DTOs
+        public async Task<List<CategoryDTO>> GetCategoriesAsync(string userId)
+        {
+            List<Category> categories = await repository.GetCategoriesAsync(userId);
+            return categories.Select(c => c.ToDTO()).ToList();
+        }
     }
 
 }

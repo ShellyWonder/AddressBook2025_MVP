@@ -19,6 +19,19 @@ namespace AddressBook2025.Services
             await context.SaveChangesAsync();
             return category;
         }
+
+        public async Task<List<Category>> GetCategoriesAsync(string userId)
+        {
+            //dbconnection via factory
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            //get all categories for the logged in user
+            List<Category> categories = await context.Categories
+                .Where(c => c.AppUserId == userId)
+                .Include(c => c.Contacts) // Include related contacts
+                .ToListAsync();
+            return categories;
+        }
     }
 
 }

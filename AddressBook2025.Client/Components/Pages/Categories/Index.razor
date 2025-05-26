@@ -23,7 +23,7 @@
             </li>
         </ul>
     </EditForm>
-
+    <CategoryAccordion Categories="@categories" />
 </div>
 
 
@@ -37,13 +37,20 @@
 
     //model
     private CategoryDTO newCategory = new CategoryDTO();
+    //itirate over collection  
+    private IEnumerable<CategoryDTO> categories = [];
+
 
     protected override async Task OnInitializedAsync()
     {
         userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
     }
     private async Task HandleNewCategory()
     {
         await CategoryService.CreateCategoryAsync(newCategory, userInfo!.UserId);
+        newCategory = new CategoryDTO(); // Reset the form after submission
+        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+
     }
 }
