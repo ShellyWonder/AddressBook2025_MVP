@@ -1,0 +1,63 @@
+﻿@*CategoryAccordionItem *@
+
+@if (Category is not null)
+{
+    <div class="accordion-item">
+        <div class="accordion-header">
+            <div class="d-flex gap-3 p-3">
+                <div class="flex-grow-1 hstack gap-2 align-items-center"
+                     role="button"
+                     data-bs-toggle="collapse"
+                     data-bs-target="#collapse-@Category.Id"
+                     aria-expanded="false">
+                    <span class="badge bg-secondary rounded pill small">
+                        @Category.Contacts.Count
+                    </span>
+                    <span>
+
+                    </span>
+                </div>
+                <div>
+                    <div class="mt-2 mt-lg-0">
+                        <span class="text-nowrap">
+
+                        </span>
+                        <a role="button" class="me-1">
+                            <i class="bi bi-pencil-fill" aria-label="Edit Category"></i>
+                        </a>
+                        <a role="button" class="me-1">
+                            <i class="bi bi-trash-fill text-danger" aria-label="Delete Category"></i>
+                        </a>
+                        <a role="button" class="me-1">
+                            <i class="bi bi-eye-fill" aria-label="View Category Members"></i>
+                        </a>
+                        <a role="button" class="me-1">
+                            <i class="bi bi-envelope-fill" aria-label="Email Category Members"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="collapse-@Category.Id" class="accordion-collapse collapse" data-bs-parent="#@ParentId">
+            <div class="accordion-body">
+                <ul class="list-group">
+                    <li class="list-group-item text-center lead text-secondary">
+                        No contacts in this category :(
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ParentId { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public CategoryDTO? Category { get; set; }
+}

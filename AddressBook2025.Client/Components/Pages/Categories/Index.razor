@@ -3,10 +3,12 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+@inject ICategoryDTOService CategoryService
+
 <PageTitle>Address Book | Categories</PageTitle>
 
 <div class="container">
-    <EditForm Model="@newCategory" @* class="form-horizontal" OnValidSubmit="HandleValidSubmit" *@>
+    <EditForm Model="@newCategory" FormName="Categories" OnValidSubmit="HandleNewCategory" >
         <DataAnnotationsValidator />
         @*    <ValidationSummary class="text-danger" /> *@
 
@@ -14,7 +16,7 @@
             <li class="list-group-item">
                 <label for="CategoryName" class="form-label">Add a Category</label>
                 <div class="d-flex gap-3">
-                    <InputText @bind-Value="newCategory.Name" class="form-control" id="CategoryName" placeholder="Enter category name" />
+                    <InputText @bind-Value="newCategory.Name" class="form-control" id="CategoryName"   placeholder="Enter category name" />
                     <button type="submit" class="btn btn-primary"><i class="bi bi-floppy"></i></button>
                 </div>
 
@@ -27,5 +29,21 @@
 
 
 @code {
+    //passes in logged in userId
+    [CascadingParameter] 
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private UserInfo? userInfo;
+
+    //model
     private CategoryDTO newCategory = new CategoryDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+    }
+    private async Task HandleNewCategory()
+    {
+        await CategoryService.CreateCategoryAsync(newCategory, userInfo!.UserId);
+    }
 }

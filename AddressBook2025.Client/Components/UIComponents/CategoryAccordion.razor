@@ -1,0 +1,15 @@
+﻿@*CategoryAccordion*@
+
+<div class="accordion" id="@accordionId">
+    @foreach (var category in Categories)
+    {
+        <CategoryAccordionItem @key="category.Id" Category="category" ParentId="@accordionId" />
+    }
+</div>
+
+
+@code {
+    private string accordionId = Guid.NewGuid().ToString();
+    [Parameter, EditorRequired]
+    public IEnumerable<CategoryDTO> Categories { get; set; } = [];
+}
