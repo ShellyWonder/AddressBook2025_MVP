@@ -23,7 +23,7 @@
             </li>
         </ul>
     </EditForm>
-    <CategoryAccordion Categories="@categories" />
+    <CategoryAccordion Categories="@categories" OnCategoryChange="UpdateCategory" />
 </div>
 
 
@@ -51,6 +51,13 @@
         await CategoryService.CreateCategoryAsync(newCategory, userInfo!.UserId);
         newCategory = new CategoryDTO(); // Reset the form after submission
         categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
-
     }
+
+    private async Task UpdateCategory(CategoryDTO category)
+    {
+        await CategoryService.UpdateCategoryAsync(category, userInfo!.UserId);
+       
+    }
+
+
 }
