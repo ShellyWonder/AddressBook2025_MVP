@@ -1,0 +1,42 @@
+﻿@* CategoryItemEdit *@
+
+@* In-place rename of a category *@
+@if (Category is not null)
+{
+    <EditForm Model="Category"
+              class="d-lg-flex gap-3 p-3"
+              OnValidSubmit="HandleSubmitAsync">
+        <div class="flex-grow-1 hstack gap-2 align-items-center"
+             role="button"
+             data-bs-toggle="collapse"
+             data-bs-target="#collapse-@Category.Id"
+             aria-expanded="false">
+            <span class="badge bg-secondary rounded pill small">
+                @Category.Contacts.Count
+            </span>
+            <div class="vstack gap-2">
+                <InputText @bind-Value="Category.Name" class="form-control" />
+                <ValidationMessage For="@(() => Category.Name)" class="text-danger" />
+            </div>
+        </div>
+
+        <div class="m-2 mt-lg-0">
+            <button class="btn btn-sm btn-success me-1" type="submit">
+                <i class="bi bi-floppy-fill" aria-label="Save Changes"></i>
+                Save
+            </button>
+            <a role="button" class="btn btn-sm btn-danger" @onclick="OnCancel">
+                <i class="bi bi-x" aria-label="Cancel Changes"></i> Cancel
+            </a>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter, EditorRequired] public CategoryDTO? Category { get; set; }
+    [Parameter, EditorRequired] public EventCallback<CategoryDTO?> OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task HandleSubmitAsync()
+        => await OnSave.InvokeAsync(Category);
+}
