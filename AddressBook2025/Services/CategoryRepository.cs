@@ -20,6 +20,8 @@ namespace AddressBook2025.Services
             return category;
         }
 
+
+
         public async Task<List<Category>> GetCategoriesAsync(string userId)
         {
             //dbconnection via factory
@@ -31,6 +33,38 @@ namespace AddressBook2025.Services
                 .Include(c => c.Contacts) // Include related contacts
                 .ToListAsync();
             return categories;
+        }
+
+        public async Task<Category?> GetCategoryByIdAsync(int id, string userId)
+        {
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+            //get category by id and userId
+            Category? category = await context.Categories
+                                      .Include(c => c.Contacts)
+                                       .FirstOrDefaultAsync(c => c.Id == id && c.AppUserId == userId);
+            return category;
+        }
+
+        public async Task UpdateCategoryAsync(Category category, string userId)
+        {
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+            if (await context.Categories.AnyAsync(c => c.Id == category.Id && c.AppUserId == userId))
+            {
+                context.Categories.Update(category);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteCategoryAsync(int id, string userId)
+        {
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+            Category? category = context.Categories
+                .FirstOrDefault(c => c.Id == id && c.AppUserId == userId);
+            if (category is not null)
+            {
+                context.Categories.Remove(category);
+                await context.SaveChangesAsync();
+            }
         }
     }
 

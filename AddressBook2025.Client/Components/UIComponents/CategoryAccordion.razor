@@ -3,13 +3,24 @@
 <div class="accordion" id="@accordionId">
     @foreach (var category in Categories)
     {
-        <CategoryAccordionItem @key="category.Id" Category="category" ParentId="@accordionId" />
+        <CategoryAccordionItem @key="category.Id"
+        Category="category" 
+        ParentId="@accordionId"
+        OnCategoryChange="OnCategoryChange" 
+        OnCategoryDelete="OnCategoryDelete"/>
     }
 </div>
 
 
 @code {
     private string accordionId = Guid.NewGuid().ToString();
+
     [Parameter, EditorRequired]
     public IEnumerable<CategoryDTO> Categories { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public EventCallback<CategoryDTO> OnCategoryChange { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<int> OnCategoryDelete { get; set; }
 }

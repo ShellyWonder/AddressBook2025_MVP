@@ -23,7 +23,9 @@
             </li>
         </ul>
     </EditForm>
-    <CategoryAccordion Categories="@categories" OnCategoryChange="UpdateCategory" />
+    <CategoryAccordion Categories="@categories"
+        OnCategoryChange="UpdateCategory"
+        OnCategoryDelete="DeleteCategory"/>
 </div>
 
 
@@ -43,7 +45,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
         categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
     }
     private async Task HandleNewCategory()
@@ -59,5 +61,10 @@
        
     }
 
-
+    public async Task DeleteCategory(int categoryId)
+    {   //removes the category from the list
+        await CategoryService.DeleteCategoryAsync(categoryId, userInfo!.UserId);
+        // Refresh the categories list after deletion
+        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+    }
 }
