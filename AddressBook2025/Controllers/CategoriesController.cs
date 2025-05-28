@@ -81,5 +81,19 @@ namespace AddressBook2025.Controllers
                 return Problem();
             }
         }
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteCategoryAsync([FromRoute] int id)
+        {
+            try
+            {
+                await categoryService.DeleteCategoryAsync(id, _userId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
     }
 }

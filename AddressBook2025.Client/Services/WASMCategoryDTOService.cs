@@ -32,13 +32,14 @@ namespace AddressBook2025.Client.Services
 
         }
 
-        public Task DeleteCategoryAsync(int id, string userId)
+        public async Task DeleteCategoryAsync(int id, string userId)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await http.DeleteAsync($"api/categories/{id}");
+            response.EnsureSuccessStatusCode();
         }
 
-        
 
-        
+
+
     }
 }
