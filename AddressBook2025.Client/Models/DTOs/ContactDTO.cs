@@ -25,13 +25,15 @@ namespace AddressBook2025.Client.Models.DTOs
         [Display(Name = "Full Name")]
         public string FullName { get { return $"{FirstName} {LastName}"; } }
 
-        [Display(Name = "Birthdate")]
+        [Display(Name = "Birthday")]
         [DataType(DataType.Date)]
-        public DateTimeOffset BirthDate
+        public DateOnly BirthDate
         {
-            get => (DateTimeOffset)_birthDate!;
-            set => _birthDate = value.ToUniversalTime();
+            get => _birthDate.HasValue ? DateOnly.FromDateTime(_birthDate.Value.DateTime) : default;
+            set => _birthDate = value.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
         }
+
+
         [Required]
         [Display(Name = "Address")]
         public string? Address1 { get; set; }
@@ -70,7 +72,7 @@ namespace AddressBook2025.Client.Models.DTOs
         }
 
         public string? ProfileImageUrl { get; set; }
-      public virtual ICollection<CategoryDTO> Categories { get; set; } = [];
+        public virtual ICollection<CategoryDTO> Categories { get; set; } = [];
     }
 }
 

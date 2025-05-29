@@ -1,0 +1,31 @@
+﻿@*Create Contact *@
+@page "/contacts/create"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Address Book | Create Contact</PageTitle>
+
+<div class="container">
+    <div class="p-3 my-5 border border-2 shadow-lg bg-light">
+        <ContactForm Contact="new ContactDTO()" OnSubmit="HandleSubmit"/>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private async Task HandleSubmit(ContactDTO contact)
+    {
+        UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
+    }
+
+}

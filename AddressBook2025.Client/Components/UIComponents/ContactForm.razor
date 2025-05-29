@@ -1,0 +1,142 @@
+﻿@* ContactForm Component *@
+@using AddressBook2025.Client.Models
+@using AddressBook2025.Client.Models.DTOs
+@using AddressBook2025.Client.Models.Enums
+
+@inject ICategoryDTOService CategoryService
+
+
+@if (Contact is not null)
+{
+    <EditForm Model="Contact" OnValidSubmit="HandleSubmit" enctype="multipart/form-data">
+        <DataAnnotationsValidator />
+        <div class="row g-3 p-2">
+            @**IMAGE COLUMN***@
+            <div class="col-12 col-lg-4">
+                <div>
+                    <img id="contactImage" src="" />
+                </div>
+                <div>
+                    <InputFile class="form-control mt-2" accept=".png, .jpg, .jpeg, .gif, .svg" />
+                    <span class="text-danger"></span>
+                </div>
+            </div>
+            @***DATA INPUT COLUMN***@
+            <div class=" col-12 col-lg-8">
+                <div class="row">
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.FirstName" class="form-label">First Name</label>
+                        <InputText @bind-Value="Contact.FirstName" DisplayName="First Name" class="form-control" />
+                        <ValidationMessage For="() => Contact.FirstName" />
+                    </div>
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.LastName" class="form-label">Last Name</label>
+                        <InputText @bind-Value="Contact.LastName" DisplayName="Last Name" class="form-control" />
+                        <ValidationMessage For="() => Contact.LastName" />
+                    </div>
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.Email" class="form-label">Email</label>
+                        <InputText @bind-Value="Contact.Email" DisplayName="Email" class="form-control" />
+                        <ValidationMessage For="() => Contact.Email" />
+                    </div>
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.PhoneNumber" class="form-label">Phone Number</label>
+                        <InputText @bind-Value="Contact.PhoneNumber" DisplayName="Phone Number" class="form-control" />
+                        <ValidationMessage For="() => Contact.PhoneNumber" />
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label for="Contact.Address1" class="form-label">Address</label>
+                        <InputText @bind-Value="Contact.Address1" DisplayName="Address" class="form-control" />
+                        <ValidationMessage For="() => Contact.Address1" />
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label for="Contact.Address2" class="form-label">Address 2</label>
+                        <InputText @bind-Value="Contact.Address2" DisplayName="Address 2" class="form-control" />
+                        <ValidationMessage For="() => Contact.Address2" />
+                    </div>
+                    @*CITY, STATE AND ZIP CODE*@
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.City" class="form-label">City</label>
+                        <InputText @bind-Value="Contact.City" DisplayName="City" class="form-control" />
+                        <ValidationMessage For="() => Contact.City" />
+                    </div>
+                    <div class="col-12 col-lg-4 mt-2">
+                        <label for="Contact.State" class="form-label">State</label>
+                        <InputSelect @bind-Value="Contact.State" class="form-control">
+                            <option value=" ">Select  . . .</option>
+                            @foreach (State state in Enum.GetValues<State>())
+                            {
+                                <option value="@state">@Enum.GetName(typeof(State), state)</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => Contact.State" />
+                    </div>
+                    <div class="col-12 col-lg-2 mt-2">
+                        <label for="Contact.ZipCode" class="form-label">Zip Code</label>
+                        <InputNumber @bind-Value="Contact.ZipCode" DisplayName="Zip Code" class="form-control" />
+                        <ValidationMessage For="() => Contact.ZipCode" />
+                    </div>
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="" class="form-label">Categories</label>
+                        <InputSelect @bind-Value="selectedCategoryIds" class="form-control">
+                            @foreach (CategoryDTO category in categories)
+                            {
+                                <option value="@category.Id">
+                                    @category.Name
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-12 col-lg-6 mt-2">
+                        <label for="Contact.BirthDate" class="form-label">Birthday</label>
+                        <InputDate @bind-Value="Contact.BirthDate" DisplayName="Birthday" class="form-control" />
+                        <ValidationMessage For="() => Contact.BirthDate" />
+                    </div>
+                    <div class="col-12 d-flex justify-content-end justify-content-stretch gap-3 mt-2 ">
+                        <a href="/contacts" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+                        <button type="submit" class="btn btn-primary rounded-pill">Save</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    [Parameter, EditorRequired]
+    public ContactDTO Contact { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<ContactDTO> OnSubmit { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private UserInfo? userInfo;
+    private IEnumerable<CategoryDTO> categories = [];
+    private int[] selectedCategoryIds = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Contact ??= new ContactDTO();
+        selectedCategoryIds = [.. Contact.Categories.Select(c => c.Id)];
+
+        try
+        {
+            userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
+            categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        await OnSubmit.InvokeAsync(Contact);
+    }
+}
