@@ -10,7 +10,7 @@ namespace AddressBook2025.Models
     public class Contact
     {
         private DateTimeOffset? _created;
-        private DateTimeOffset? _birthDate;
+        
 
         public int Id { get; set; }
 
@@ -30,11 +30,8 @@ namespace AddressBook2025.Models
 
         [Display(Name = "Birthdate")]
         [DataType(DataType.Date)]
-        public DateTimeOffset BirthDate 
-        {
-            get => (DateTimeOffset)_birthDate!;
-            set => _birthDate = value.ToUniversalTime();
-        }
+        public DateOnly? BirthDate { get; set; }
+       
         [Required]
         [Display(Name = "Address")]
         public string? Address1 { get; set; }
@@ -51,7 +48,7 @@ namespace AddressBook2025.Models
         [Required]
         [Display(Name = "Zip Code")]
         [StringLength(10)]
-        [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "Please enter a 5 digit or 9 digit US Postal Code")]
+        [RegularExpression(@"^(?!0{5}|[0-9]{9})[0-9]{5}(?:-[0-9]{4})?$", ErrorMessage = "Postal code must be 5 or 9 digits and must not contain all zeros. If 9 digits, it must not begin with 5 zeros or end in 4 zeros.")]
         [DataType(DataType.PostalCode)]
         public int ZipCode { get; set; }
 
@@ -83,15 +80,14 @@ namespace AddressBook2025.Models
 
         public virtual ICollection<Category> Categories { get; set; } = [];
 
-        //Mapping Contact to ContactDTO
-        public ContactDTO ToDTO() 
+        public ContactDTO ToDTO()
         {
             ContactDTO dto = new()
             {
                 Id = this.Id,
                 FirstName = this.FirstName,
                 LastName = this.LastName,
-                BirthDate = this.BirthDate.ToLocalTime(),
+                BirthDate = this.BirthDate.HasValue ? this.BirthDate.Value : default, // Fix for CS8629
                 Address1 = this.Address1,
                 Address2 = this.Address2,
                 City = this.City,
@@ -104,11 +100,10 @@ namespace AddressBook2025.Models
             };
             foreach (Category category in Categories)
             {
-                //prevent circular reference
+                // Prevent circular reference
                 category.Contacts.Clear();
                 dto.Categories.Add(category.ToDTO());
             }
-
 
             return dto;
         }

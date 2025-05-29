@@ -7,7 +7,7 @@ namespace AddressBook2025.Client.Models.DTOs
     public class ContactDTO
     {
         private DateTimeOffset? _created;
-        private DateTimeOffset? _birthDate;
+       
 
         public int Id { get; set; }
 
@@ -27,12 +27,7 @@ namespace AddressBook2025.Client.Models.DTOs
 
         [Display(Name = "Birthday")]
         [DataType(DataType.Date)]
-        public DateOnly BirthDate
-        {
-            get => _birthDate.HasValue ? DateOnly.FromDateTime(_birthDate.Value.DateTime) : default;
-            set => _birthDate = value.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
-        }
-
+        public DateOnly? BirthDate { get; set; }
 
         [Required]
         [Display(Name = "Address")]
@@ -50,7 +45,7 @@ namespace AddressBook2025.Client.Models.DTOs
         [Required]
         [Display(Name = "Zip Code")]
         [StringLength(10)]
-        [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "Please enter a 5 digit or 9 digit US Postal Code")]
+        [RegularExpression(@"^(?!0{5}|[0-9]{9})[0-9]{5}(?:-[0-9]{4})?$", ErrorMessage = "Postal code must be 5 or 9 digits and must not contain all zeros. If 9 digits, it must not begin with 5 zeros or end in 4 zeros.")]
         [DataType(DataType.PostalCode)]
         public int ZipCode { get; set; }
 

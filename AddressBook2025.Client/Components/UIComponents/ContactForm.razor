@@ -62,7 +62,7 @@
                     </div>
                     <div class="col-12 col-lg-4 mt-2">
                         <label for="Contact.State" class="form-label">State</label>
-                        <InputSelect @bind-Value="Contact.State" class="form-control">
+                        <InputSelect @bind-Value="Contact.State" class="form-control" placeholder="Select State">
                             <option value=" ">Select  . . .</option>
                             @foreach (State state in Enum.GetValues<State>())
                             {
