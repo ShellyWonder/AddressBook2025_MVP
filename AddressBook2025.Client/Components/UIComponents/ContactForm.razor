@@ -13,12 +13,12 @@
         <div class="row g-3 p-2">
             @**IMAGE COLUMN***@
             <div class="col-12 col-lg-4">
-                <div>
-                    <img id="contactImage" src="" />
+                <div class="square-img-container">
+                    <img id="contactImage" class="square-img" src="@ProfileImageSrc" />
                 </div>
                 <div>
-                    <InputFile class="form-control mt-2" accept=".png, .jpg, .jpeg, .gif, .svg" />
-                    <span class="text-danger"></span>
+                    <InputFile OnChange="OnFileChange"  class="form-control mt-2" accept=".png, .jpg, .jpeg, .gif, .svg" />
+                    <span class="text-danger">@imageErrorMessage</span>
                 </div>
             </div>
             @***DATA INPUT COLUMN***@
@@ -117,6 +117,11 @@
     private UserInfo? userInfo;
     private IEnumerable<CategoryDTO> categories = [];
     private int[] selectedCategoryIds = [];
+    private string imageErrorMessage = string.Empty;
+    private string ProfileImageSrc => string.IsNullOrWhiteSpace(Contact?.ProfileImageUrl)
+                                            ? BrowserFileHelper.DefaultContactImage 
+                                            : Contact.ProfileImageUrl;
+    private IBrowserFile? selectedImage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,6 +137,34 @@
         {
 
             Console.WriteLine(ex);
+        }
+    }
+    //InputFileChangeEventArgs is the type coming from the InputFile component
+    private async Task OnFileChange(InputFileChangeEventArgs changeEvent)
+    {
+        imageErrorMessage = null!;
+        if (changeEvent.File is null)
+        {
+            selectedImage = null;
+            Contact.ProfileImageUrl = BrowserFileHelper.DefaultContactImage;
+        }
+        else if (changeEvent.File.Size > BrowserFileHelper.MaxFileSize)
+        {
+            imageErrorMessage = "Images must be less than 5 MB.";
+        }
+        else
+        {
+            try
+            {
+                Contact.ProfileImageUrl = await BrowserFileHelper.GetDataUrl(changeEvent.File);
+                selectedImage = changeEvent.File;
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine(ex);
+                imageErrorMessage = "There was an error processing the image. Please select a different image.";
+            }
         }
     }
 
