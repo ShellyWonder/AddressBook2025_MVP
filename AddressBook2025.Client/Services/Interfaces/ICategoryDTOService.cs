@@ -9,6 +9,7 @@ namespace AddressBook2025.Client.Services.Interfaces
 
         //get (read) all categories for a user
         Task<List<CategoryDTO>> GetCategoriesAsync(string userId);
+
         Task<CategoryDTO> GetCategoryByIdAsync(int id, string userId);
 
         //update a category

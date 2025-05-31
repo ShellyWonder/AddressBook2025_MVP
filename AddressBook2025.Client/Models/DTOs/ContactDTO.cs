@@ -62,7 +62,7 @@ namespace AddressBook2025.Client.Models.DTOs
         [DataType(DataType.Date)]
         public DateTimeOffset Created
         {
-            get => (DateTimeOffset)_created!;
+            get => _created ?? throw new InvalidOperationException("Created date is not set.");
             set => _created = value.ToUniversalTime();
         }
 
