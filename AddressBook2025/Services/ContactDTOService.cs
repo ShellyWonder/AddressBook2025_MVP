@@ -35,6 +35,15 @@ namespace AddressBook2025.Services
 
             //save new object
             newContact = await repository.CreateContactAsync(newContact);
+
+            //add (update new contact)categories to the contact
+            List<int> categoryIds = dto.Categories?.Select(c => c.Id).ToList() ?? new List<int>();
+            await repository.AddCategoriesToContactAsync(newContact.Id, userId, categoryIds);
+
+            //Since the new contact has been updated with categories, requery the database 
+            // read method
+            newContact = await repository.GetContactByIdAsync(newContact.Id, userId) 
+                                          ?? throw new Exception("Contact not found after creation.");
             //transform entity to DTO
             return newContact.ToDTO();
         }
