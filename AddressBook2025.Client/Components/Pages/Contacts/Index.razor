@@ -1,7 +1,11 @@
-﻿@* Contact Index *@
+﻿@* Contact Index *@  
 @page "/contacts"
 @attribute [Authorize]
 @rendermode InteractiveServer
+
+@inject ICategoryDTOService categoryService
+@inject IContactDTOService contactService
+@inject NavigationManager navManager
 
 <PageTitle>Address Book| Contacts</PageTitle>
 
@@ -14,8 +18,89 @@
             <NavLink class="btn btn-primary rounded pill" href="/contacts/create">Create New Contact</NavLink>
         </div>
     </div>
+    <div class="row gap-3">
+        <div class="col-12 col-lg-4">
+            <!--Search Box column-->
+            <div class="mb-3 sideNav">
+                <form>
+                    <div class="input-group">
+                        <InputText class="form-group border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
+                        <input type="submit" class="btn btn-primary" value="search" />
+                    </div>
+                </form>
+                <div class="mt-5">
+                    <label class="form-label">Filter by Category</label>
+                    <InputSelect class="form-select" @bind-Value=CategoryId>
+                        <option value="">All Categories</option>
+                        @if (categories != null)
+                        {
+                            @foreach (CategoryDTO category in categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-8">
+            <!--Contact Card List-->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
+                @if (contacts!.Count() > 0)
+                {
+                    @foreach (ContactDTO contact in contacts!.OrderBy(categories => categories.LastName).ThenBy(categories => categories.FirstName))
+                    {
+                        <div class="col">
+                            @contact.FullName
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center hstack">
+                        <p class="pt-3 me-1">No contacts found.</p>
+                        <a class="btn btn-primary rounded small" href="/contacts/create">Let's Create a Contact</a>
+                    </div>
+
+
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
+    [SupplyParameterFromQuery]
+    private int? CategoryId { get; set; }
 
+    
+    private string searchInput = string.Empty;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private UserInfo? userInfo;
+    private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
+    private IEnumerable<CategoryDTO>? categories = Array.Empty<CategoryDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+        try
+        {
+            categories = await categoryService.GetCategoriesAsync(userInfo!.UserId);
+            // contacts = await contactService.
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+        }
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        CategoryId = null;
+    }
 }
