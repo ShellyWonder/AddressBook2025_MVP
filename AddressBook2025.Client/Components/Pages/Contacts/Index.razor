@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="col-12 col-lg-8 mb-5">
-           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
                 @if (contacts!.Any())
                 {
                     @foreach (ContactDTO contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
@@ -53,7 +53,7 @@
                             @contact.FullName
                         </div>
                     }
-                } 
+                }
 
                 <div class="text-center hstack">
                     <p class="me-2 mb-0">No contacts found.</p>
@@ -65,7 +65,7 @@
                 </div>
 
             </div>
-       @*  </div> *@
+        </div>
     </div>
 </div>
 
@@ -102,5 +102,17 @@
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
         CategoryId = null;
+
+        try
+        {
+            //Grab a list of contacts for the user
+            contacts = await contactService.GetContactsAsync(userInfo!.UserId);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+        }
     }
 }

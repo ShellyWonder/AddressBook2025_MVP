@@ -10,4 +10,5 @@
     margin-top: 1rem;
     background-color: var(--sjw-theme-150);
     height: fit-content;
+    box-shadow: 0 0 .7rem var(--sjw-theme-500);
 }

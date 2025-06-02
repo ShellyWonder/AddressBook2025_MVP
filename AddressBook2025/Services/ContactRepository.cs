@@ -7,6 +7,16 @@ namespace AddressBook2025.Services
 {
     public class ContactRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : IContactRepository
     {
+        public async Task<List<Contact>> GetContactsAsync(string userId)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+            //read all contacts for the userId
+            List<Contact> contacts= await context.Contacts.Include(c => c.Categories) // Include categories if needed
+                .Where(c => c.AppUserId == userId)
+                .ToListAsync();
+            return contacts;
+        }
         public async Task<Contact?> GetContactByIdAsync(int Id, string userId)
         {
             //dbconnection

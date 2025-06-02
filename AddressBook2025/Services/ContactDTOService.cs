@@ -47,5 +47,13 @@ namespace AddressBook2025.Services
             //transform entity to DTO
             return newContact.ToDTO();
         }
+
+        public async Task<List<ContactDTO>> GetContactsAsync(string userId)
+        {
+            List<Contact> contacts = await repository.GetContactsAsync(userId);
+            //transform entities to DTOs
+            List<ContactDTO> dtos = [.. contacts.Select(c=> c.ToDTO())];
+            return dtos;
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace AddressBook2025.Services.Interfaces
 
         //read
         Task<Contact?> GetContactByIdAsync(int Id, string userId);
+        Task<List<Contact>> GetContactsAsync(string userId);
 
         //update to add categories to the contact once the contact is created
         Task AddCategoriesToContactAsync(int contactId, string userId, List<int> categoryIds);
