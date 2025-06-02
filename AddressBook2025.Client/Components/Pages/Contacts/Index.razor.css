@@ -12,3 +12,24 @@
     height: fit-content;
     box-shadow: 0 0 .7rem var(--sjw-theme-500);
 }
+.yellow{
+        color: yellow;
+}
+
+
+.no-contacts-headline {
+    /* give the shadow something to grab on to */
+    display: inline-block; /* keeps width snug to the text            */
+    padding: .25rem .75rem; /* a little breathing room around the text */
+    border-radius: .5rem; /* soft rounded corners                     */
+    /* subtle frosted backdrop (optional, remove if you don’t want it) */
+    background-color: rgba(255,255,255,.06);
+    /* the star of the show ↓ */
+    box-shadow: 0 .25rem 1rem rgba(0,0,0,.40), /* soft downward drop for depth  */
+    0 0 1.25rem rgba(255,255,255,.10) inset; /* faint inner glow   */
+}
+.btnShadow {
+    box-shadow: 0 .25rem 1rem rgba(0,0,0,.40), /* soft downward drop for depth  */
+    0 0 1.25rem rgba(255,255,255,.10) inset; /* faint inner glow   */
+}
+
