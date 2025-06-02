@@ -7,64 +7,88 @@
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
 
-<PageTitle>Address Book | Contacts</PageTitle>
+<PageTitle>Black Book Pro | Contacts</PageTitle>
 
 <div class="container">
     <div class="row mt-3">
         <div class="col">
             <h1>All Contacts</h1>
         </div>
-        <div class="col text-end">
-            <NavLink class="btn btn-primary rounded pill" href="/contacts/create">Create New Contact</NavLink>
-        </div>
+        @if (HasContacts)
+        {
+            <div class="col text-end">
+                <NavLink class="btn btn-primary rounded pill"
+                         href="/contacts/create">
+                    Create New Contact
+                </NavLink>
+            </div>
+        }
+
     </div>
     <div class="row gap-3">
-        <div class="col-12 col-lg-4">
-            <!--Search Box column-->
-            <div class="mb-3 sideNav">
+        @* Search / Filter column – render only when contacts exist *@
+        @if (HasContacts)
+        {
+            <div class="col-12 col-lg-4">
                 <form>
-                    <div class="input-group">
-                        <InputText class="form-control  border border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
-                        <input type="submit" class="btn btn-primary" value="search" />
+                    <div class="input-group mb-3">
+                        <InputText class="form-control border-0 rounded-2 ps-1"
+                                   type="search"
+                                   placeholder="Search Contacts"
+                                   @bind-Value="searchInput" />
+                        <input type="submit" class="btn btn-primary" value="Search" />
                     </div>
-                </form>
-                <div class="mt-5">
-                    <label class="form-label">Filter by Category</label>
-                    <InputSelect class="form-select" @bind-Value=CategoryId>
+
+                    <label class="form-label mt-4">Filter by Category</label>
+                    <InputSelect class="form-select" @bind-Value="CategoryId">
                         <option value="">All Categories</option>
-                        @if (categories != null)
+                        @foreach (var category in categories ?? Enumerable.Empty<CategoryDTO>())
                         {
-                            @foreach (CategoryDTO category in categories)
-                            {
-                                <option value="@category.Id">@category.Name</option>
-                            }
+                            <option value="@category.Id">@category.Name</option>
                         }
                     </InputSelect>
-                </div>
+                </form>
             </div>
-        </div>
-        <div class="col-12 col-lg-8 mb-5">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
-                @if (contacts!.Any())
-                {
-                    @foreach (ContactDTO contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
+        }
+        <!-- Contacts / Empty-state column -->
+        <div class="@(HasContacts ? "col-12 col-lg-8" : "col-12") mb-5">
+
+            @if (HasContacts)
+            {
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
+                    @foreach (var contact in contacts!.OrderBy(c => c.LastName)
+                                    .ThenBy(c => c.FirstName))
                     {
                         <div class="col">
-                            <ContactCard Contact="@contact" />
+                            <ContactCard Contact="contact" />
                         </div>
                     }
-                }
-
-                <div class="text-center hstack">
-                    <p class="me-2 mb-0">No contacts found.</p>
-                    <NavLink class="btn btn-primary btn-sm"
-                             href="/contacts/create">
-                        Let&rsquo;s Create a Contact
-                    </NavLink>
-
                 </div>
+            }
+            else
+            {
+                <div class="d-flex justify-content-center">
+                    <!-- Restrict the width once and let everything inside follow it -->
+                    <div class="text-center" style="max-width:22rem;">
+                         <!-- image -->
+                        <img src="img/shrug.png"
+                             class="img-fluid" 
+                             alt="Cartoon person shrugging" />
 
-            </div>
+                        <!-- headline -->
+                        <p class="fs-4 mb-3 yellow no-contacts-headline ">
+                           No contacts found.
+                        </p>
+
+                        <!-- CTA button -->
+                        <NavLink class="btn btn-primary w-100 rounded-pill border border-1 btnShadow"
+                                 href="/contacts/create">
+                            Let&rsquo;s Create a Contact
+                        </NavLink>
+                    </div>
+                </div>
+            }
+
         </div>
     </div>
 </div>
@@ -74,14 +98,14 @@
     private int? CategoryId { get; set; }
 
 
-    private string searchInput = string.Empty;
-
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
 
     private UserInfo? userInfo;
     private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
     private IEnumerable<CategoryDTO>? categories = Array.Empty<CategoryDTO>();
+    private bool HasContacts => contacts?.Any() == true;
+    private string searchInput = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
