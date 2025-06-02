@@ -7,7 +7,7 @@
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
 
-<PageTitle>Address Book| Contacts</PageTitle>
+<PageTitle>Address Book | Contacts</PageTitle>
 
 <div class="container">
     <div class="row mt-3">
@@ -24,7 +24,7 @@
             <div class="mb-3 sideNav">
                 <form>
                     <div class="input-group">
-                        <InputText class="form-group border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
+                        <InputText class="form-control border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
                         <input type="submit" class="btn btn-primary" value="search" />
                     </div>
                 </form>
@@ -43,29 +43,29 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-8">
-            <!--Contact Card List-->
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
-                @if (contacts!.Count() > 0)
+        <div class="col-12 col-lg-8 mb-5">
+           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
+                @if (contacts!.Any())
                 {
-                    @foreach (ContactDTO contact in contacts!.OrderBy(categories => categories.LastName).ThenBy(categories => categories.FirstName))
+                    @foreach (ContactDTO contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
                     {
                         <div class="col">
                             @contact.FullName
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="text-center hstack">
-                        <p class="pt-3 me-1">No contacts found.</p>
-                        <a class="btn btn-primary rounded small" href="/contacts/create">Let's Create a Contact</a>
-                    </div>
+                } 
 
+                <div class="text-center hstack">
+                    <p class="me-2 mb-0">No contacts found.</p>
+                    <NavLink class="btn btn-primary btn-sm"
+                             href="/contacts/create">
+                        Let&rsquo;s Create a Contact
+                    </NavLink>
 
-                }
+                </div>
+
             </div>
-        </div>
+       @*  </div> *@
     </div>
 </div>
 
@@ -73,7 +73,7 @@
     [SupplyParameterFromQuery]
     private int? CategoryId { get; set; }
 
-    
+
     private string searchInput = string.Empty;
 
     [CascadingParameter]
