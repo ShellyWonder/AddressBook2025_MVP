@@ -24,7 +24,7 @@
             <div class="mb-3 sideNav">
                 <form>
                     <div class="input-group">
-                        <InputText class="form-control border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
+                        <InputText class="form-control  border border-0 rounded-2 ps-1" type="search" placeholder="Search Contacts" @bind-Value="searchInput" />
                         <input type="submit" class="btn btn-primary" value="search" />
                     </div>
                 </form>
@@ -50,7 +50,7 @@
                     @foreach (ContactDTO contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
                     {
                         <div class="col">
-                            @contact.FullName
+                            <ContactCard Contact="@contact" />
                         </div>
                     }
                 }

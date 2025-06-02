@@ -5,9 +5,10 @@
     border-style: solid;
 
 }
+     /*adds padding to the bottom to make the image square*/
     .square-img-container::after {
         content: "";
-        display: block;
+        display: block;/*stacks one on top of the others*/
         padding-bottom: 100%;
     }
 

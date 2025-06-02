@@ -1,0 +1,59 @@
+﻿@*ContactCardComponent *@
+
+@if (Contact is not null)
+{
+    <div class="card h-100">
+        <div class="row g-0">
+            <div class="col-md-4 square-img-container rounded-start overflow-hidden">
+                <img src="@Contact.ProfileImageUrl" class="square-img" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@Contact.FullName</h5>
+                    <address class="card-text">
+                        @Contact.Address1<br />
+                        @if (!string.IsNullOrWhiteSpace(Contact.Address2))
+                        {
+                            @Contact.Address2
+                            <br />
+                        }
+                        @Contact.City, @Contact.State @Contact.ZipCode
+                    </address>
+                    <div class="card-text">
+                        <span class="fw-bold me-2">Phone:</span> @Contact.PhoneNumber
+                    </div>
+                    <div class="card-text text-truncate">
+                        <span class="fw-bold me-2">Email:</span> @Contact.Email
+                    </div>
+                    <div class="fs-4">
+                        <a class="me-3 editIcons" href="#"><i class="bi bi-pencil-fill text-success"></i></a>
+                        <a class="me-3 editIcons" href="#"><i class="bi bi-envelope-fill text-warning"></i></a>
+                        <a class="me-3 editIcons" href="#"><i class="bi bi-trash-fill text-danger"></i></a>    
+                    </div>
+                    <div class="hstack gap-2 flex-wrap">
+                        @foreach (CategoryDTO category in Contact.Categories.OrderBy(c=>c.Name))
+                        {
+                            <a href="" class="text-decoration-none badge rounded-pill border border-1 fw-normal text-dark">
+                                @category.Name
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+@code {
+    /// <summary>
+    /// Data should pass through a component.
+    ///The page handles the data retrieval and passes it to the component.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public ContactDTO? Contact { get; set; }
+
+}
