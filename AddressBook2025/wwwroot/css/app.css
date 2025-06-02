@@ -1,6 +1,6 @@
 :root {
-    --sjw-title-font: 'Bebas Neue', sans-serif;
-    --sjw-body-font: 'Montserrat', sans-serif;
+    --sjw-title-font: 'Fira Sans', sans-serif;
+    --sjw-body-font: 'Roboto', sans-serif;
     --sjw-font-size: 1.1rem;
     --sjw-title-color: var(--sjw-dark-color);
 }
@@ -16,13 +16,11 @@ html, body {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--sjw-title-font);
+    font-weight: 600;
     color: var(--sjw-dark-color);
+    text-transform: uppercase;
 }
 
-.h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: var(--sjw-title-font);
-    color: var(--sjw-dark-color);
-}
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;
