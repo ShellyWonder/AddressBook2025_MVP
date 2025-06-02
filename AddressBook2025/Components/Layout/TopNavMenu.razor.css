@@ -1,6 +1,6 @@
 ﻿.navStyle {
     background-color: var(--sjw-theme-850);
-    
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 .nav-item {
