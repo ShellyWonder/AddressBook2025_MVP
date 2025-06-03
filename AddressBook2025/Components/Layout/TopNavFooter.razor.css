@@ -1,5 +1,6 @@
 ﻿.footerStyle {
-    background-color: var(--sjw-theme-900);
+    /*background-color: var(--sjw-theme-900);*/
+    background-color: transparent;
     color: var(--sjw-footer-font-color);
 }
 
@@ -12,7 +13,10 @@
 }
 
 .bi {
-    font-size: 1.5rem;
+    font-size: 2rem;
     padding-inline-start: .5rem;
 }
-
+.copyright{
+    font-size: 1.25rem;
+    color: var(--sjw-theme-200);
+}

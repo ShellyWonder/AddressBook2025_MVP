@@ -24,11 +24,9 @@ body{
     color: var(--light-gs-color);
 }
 
-.pageBG{
+.pageBG {
     background: url("/img/AbstractSpheres.png");
-   
-    background-size: cover;
-
+    background-size:auto;
 }
 .glass-cf-style {
     color: var(--light-gs-color);
