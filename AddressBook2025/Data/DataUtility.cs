@@ -8,17 +8,30 @@ namespace AddressBook2025.Data
 {
     public class DataUtility
     {
-        public static async Task ManageDataAsync(IServiceProvider serviceProvider)
+        public static async Task ManageDataAsync(IServiceProvider svc)
         {
-            // get db connection
-            var dbContextSvc = serviceProvider.GetRequiredService<ApplicationDbContext>();
-            var userManagerSvc = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var config = serviceProvider.GetRequiredService<IConfiguration>();
-            //will sync up db with the model
-            await dbContextSvc.Database.MigrateAsync();
-            await SeedDemoUserAsync(userManagerSvc, config);
-            await SeedDemoContactsAsync(userManagerSvc, dbContextSvc, config);
+            var db = svc.GetRequiredService<ApplicationDbContext>();
+            var um = svc.GetRequiredService<UserManager<ApplicationUser>>();
+
+            await db.Database.MigrateAsync();
+
+            /* ---- Demo account (kept exactly as before) ---- */
+            var config = svc.GetRequiredService<IConfiguration>();
+            var demoEmail = config["DemoUserLogin"]!;
+            var demoPassword = config["DemoUserPassword"]!;
+            var demoUser = await EnsureUserAsync(um, demoEmail, demoPassword, "Demo", "Login");
+            await SeedContactsForUserAsync(demoUser, db);
+
+            /* ---- Wanda ---- */
+            var wandaUser = await EnsureUserAsync(
+                um,
+                email: "wanda@mailinator.com",
+                password: "Abc&123!",
+                firstName: "Wanda",
+                lastName: "Maximoff");
+            await SeedContactsForUserAsync(wandaUser, db);
         }
+
         public static async Task SeedDataAsync(IServiceProvider serviceProvider)
         {
             // get db connection
@@ -181,5 +194,123 @@ namespace AddressBook2025.Data
             // Save changes to the database
             await context.SaveChangesAsync();
         }
+        private static async Task<ApplicationUser> EnsureUserAsync(
+    UserManager<ApplicationUser> userManager,
+    string email, string password,
+    string firstName, string lastName)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user is null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    EmailConfirmed = true
+                };
+                await userManager.CreateAsync(user, password);
+            }
+            return user;
+        }
+
+        private static async Task SeedContactsForUserAsync(
+            ApplicationUser user,
+            ApplicationDbContext context)
+        {
+            // fetch existing data (if any)
+            var userContacts = await context.Contacts
+                .Where(c => c.AppUserId == user.Id)
+                .Include(c => c.Categories)
+                .ToListAsync();
+
+            var userCategories = await context.Categories
+                .Where(c => c.AppUserId == user.Id)
+                .ToListAsync();
+
+            Random rand = new();
+
+            /* ----------  contacts  ---------- */
+            if (userContacts.Count == 0)
+            {
+                var newContacts = new Faker<Contact>()
+                    .RuleFor(c => c.LastName, f => f.Name.LastName())
+                    .RuleFor(c => c.BirthDate,
+                        (f, c) => DateOnly.FromDateTime(
+                            f.Date.Between(
+                                DateTime.Today.AddYears(-60),
+                                DateTime.Today.AddYears(-18))))
+                    .RuleFor(c => c.PhoneNumber, f => f.Phone.PhoneNumber())
+                    .RuleFor(c => c.Address1, f => f.Address.StreetAddress())
+                    .RuleFor(c => c.City, f => f.Address.City())
+                    .RuleFor(c => c.State, f => f.PickRandom<State>())
+                    .RuleFor(c => c.ZipCode, f => int.Parse(f.Address.ZipCode("#####")))
+                    .RuleFor(c => c.AppUserId, user.Id)
+                    .Generate(10);
+
+                // gender-specific images (same logic you already use)
+                Faker faker = new();
+                var imageDir = Path.Combine(Directory.GetCurrentDirectory(), "Data/DemoImages");
+                var mensPics = Directory.GetFiles(Path.Combine(imageDir, "Men")).ToList();
+                var womensPic = Directory.GetFiles(Path.Combine(imageDir, "Women")).ToList();
+
+                for (int i = 0; i < newContacts.Count; i++)
+                {
+                    var contact = newContacts[i];
+                    bool isMale = i % 2 == 0;
+
+                    contact.FirstName = isMale
+                        ? faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male)
+                        : faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female);
+
+                    var pool = isMale ? mensPics : womensPic;
+                    if (pool.Count > 0)
+                    {
+                        var pic = pool[rand.Next(pool.Count)];
+                        pool.Remove(pic);
+                        contact.Image = new ImageUpload
+                        {
+                            Data = await File.ReadAllBytesAsync(pic),
+                            Type = $"image/{Path.GetExtension(pic).TrimStart('.')}"
+                        };
+                        context.Images.Add(contact.Image);
+                    }
+
+                    contact.Email = faker.Internet.Email(contact.FirstName, contact.LastName, "mailinator.com");
+                    if (rand.Next() % 2 == 0) contact.Address2 = faker.Address.SecondaryAddress();
+                }
+
+                userContacts.AddRange(newContacts);
+            }
+
+            /* ----------  categories  ---------- */
+            if (userCategories.Count == 0)
+            {
+                userCategories =
+                [
+                    new() { Name = "Family",    AppUserId = user.Id },
+            new() { Name = "Friends",   AppUserId = user.Id },
+            new() { Name = "Coworkers", AppUserId = user.Id },
+            new() { Name = "Clients",   AppUserId = user.Id },
+            new() { Name = "Coders",    AppUserId = user.Id },
+            new() { Name = "Other",     AppUserId = user.Id },
+        ];
+                context.Categories.AddRange(userCategories);
+            }
+
+            /* ----------  join contacts to categories  ---------- */
+            foreach (var contact in userContacts.Where(c => c.Categories.Count == 0))
+            {
+                var cats = userCategories
+                    .OrderBy(_ => Guid.NewGuid())
+                    .Take(rand.Next(1, 5));
+                contact.Categories = [.. cats];
+                context.Update(contact);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
     }
 }
