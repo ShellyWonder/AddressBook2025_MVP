@@ -24,7 +24,7 @@ namespace AddressBook2025.Services
                 City = dto.City,
                 State = dto.State,
                 ZipCode = dto.ZipCode,
-                Created = DateTime.Now
+                Created = DateTimeOffset.UtcNow
 
             };
             //save image--convert the url to the imageUpload type
@@ -46,6 +46,13 @@ namespace AddressBook2025.Services
                                           ?? throw new Exception("Contact not found after creation.");
             //transform entity to DTO
             return newContact.ToDTO();
+        }
+
+        public async Task<ContactDTO> GetContactByIdAsync(int id, string userId)
+        {
+            Contact? contact = await repository.GetContactByIdAsync(id, userId);
+            return contact.ToDTO();
+
         }
 
         public async Task<List<ContactDTO>> GetContactsAsync(string userId)
