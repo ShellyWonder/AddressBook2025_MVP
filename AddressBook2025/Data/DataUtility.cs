@@ -110,7 +110,7 @@ namespace AddressBook2025.Data
                      .RuleFor(c => c.Address1, f => f.Address.StreetAddress())
                      .RuleFor(c => c.City, f => f.Address.City())
                      .RuleFor(c => c.State, f => f.PickRandom<State>())
-                     .RuleFor(c => c.ZipCode, f => int.Parse(f.Address.ZipCode("#####")))
+                     .RuleFor(c => c.ZipCode, f => f.Address.ZipCode("#####"))
                      .RuleFor(c => c.AppUserId, user.Id)
                      .Generate(10);
 
@@ -245,7 +245,7 @@ namespace AddressBook2025.Data
                     .RuleFor(c => c.Address1, f => f.Address.StreetAddress())
                     .RuleFor(c => c.City, f => f.Address.City())
                     .RuleFor(c => c.State, f => f.PickRandom<State>())
-                    .RuleFor(c => c.ZipCode, f => int.Parse(f.Address.ZipCode("#####")))
+                    .RuleFor(c => c.ZipCode, f => f.Address.ZipCode("#####"))
                     .RuleFor(c => c.AppUserId, user.Id)
                     .Generate(10);
 

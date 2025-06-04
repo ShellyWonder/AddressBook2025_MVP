@@ -6,7 +6,7 @@ namespace AddressBook2025.Client.Models.DTOs
 {
     public class ContactDTO
     {
-        private DateTimeOffset? _created;
+        private DateTimeOffset? _created = DateTimeOffset.UtcNow;
        
 
         public int Id { get; set; }
@@ -44,10 +44,11 @@ namespace AddressBook2025.Client.Models.DTOs
 
         [Required]
         [Display(Name = "Zip Code")]
-        [StringLength(10)]
-        [RegularExpression(@"^(?!0{5}|[0-9]{9})[0-9]{5}(?:-[0-9]{4})?$", ErrorMessage = "Postal code must be 5 or 9 digits and must not contain all zeros. If 9 digits, it must not begin with 5 zeros or end in 4 zeros.")]
+        [RegularExpression(@"^(?!0{5}|[0-9]{9})[0-9]{5}(?:-[0-9]{4})?$",
+        ErrorMessage = "Postal code must be 5 or 9 digits and must not contain all zeros. If 9 digits, it must not begin with 5 zeros or end in 4 zeros.")]
         [DataType(DataType.PostalCode)]
-        public int ZipCode { get; set; }
+        public string ZipCode { get; set; } = string.Empty;
+
 
         [Required]
         [EmailAddress]
