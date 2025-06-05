@@ -51,7 +51,7 @@ namespace AddressBook2025.Services
         public async Task<ContactDTO> GetContactByIdAsync(int id, string userId)
         {
             Contact? contact = await repository.GetContactByIdAsync(id, userId);
-            return contact.ToDTO();
+            return contact!.ToDTO();
 
         }
 

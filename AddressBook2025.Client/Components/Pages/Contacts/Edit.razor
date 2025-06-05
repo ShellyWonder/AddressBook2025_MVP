@@ -1,0 +1,51 @@
+﻿@*EditContact *@  
+@page "/contacts/edit/{contactId:int}"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@inject IContactDTOService contactDTOService
+@inject NavigationManager navManager
+
+<PageTitle>Black Book Pro | Edit @EditName</PageTitle>
+
+@if (contact is not null)
+{
+    <div class="container">
+            <div class="p-3 my-5 glass-cf-style">
+            <ContactForm Contact="contact" OnSubmit="HandleSubmit" />
+        </div>
+    </div>
+}
+
+
+@code {
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    [Parameter]
+    public int ContactId { get; set; }
+
+    public UserInfo? userInfo;
+    public ContactDTO? contact;
+    private string EditName => contact?.FullName ?? "Loading . . .";
+
+    protected override async Task OnInitializedAsync()
+    {
+        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
+        contact = await contactDTOService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+        if (contact is null) navManager.NavigateTo("/contacts");
+
+    }
+
+    private async Task HandleSubmit(ContactDTO contact)
+    {
+        if (userInfo is not null)
+        {
+            //Call service to update
+
+            //nav back to contacts page;
+            navManager.NavigateTo("/contacts");
+        }
+    }
+}
