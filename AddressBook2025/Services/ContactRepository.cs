@@ -1,5 +1,6 @@
 ﻿using AddressBook2025.Services.Interfaces;
 using AddressBook2025.Models;
+using AddressBook2025.Helpers;
 using Microsoft.EntityFrameworkCore;
 using AddressBook2025.Data;
 
@@ -24,7 +25,7 @@ namespace AddressBook2025.Services
             //read contact by id and userId
             Contact? contact = await context.Contacts
                 .Include(c => c.Categories) // Include categories if needed
-                .FirstOrDefaultAsync(c => c.Id == Id && c.AppUserId == userId);
+                .FirstOrDefaultAsync(ContactPredicates.ByIdAndUser(Id, userId));
 
             return contact;
         }
@@ -47,14 +48,14 @@ namespace AddressBook2025.Services
             using ApplicationDbContext context = contextFactory.CreateDbContext();
             Contact? contact = await context.Contacts
                 .Include(c => c.Categories) // Include existing categories if any;
-                .FirstOrDefaultAsync(c => c.Id == contactId && c.AppUserId== userId);
+                .FirstOrDefaultAsync(ContactPredicates.ByIdAndUser(contactId, userId));
             if (contact is not null)
             {
                 //One-to-many relationship: add categories to the contact
                 //writes to the join table
                 foreach (int categoryId in categoryIds)
                 {
-                    Category? category = await context.Categories.Include(c => c.Contacts).FirstOrDefaultAsync(c => c.Id == categoryId && c.AppUserId == userId); 
+                    Category? category = await context.Categories.Include(c => c.Contacts).FirstOrDefaultAsync(CategoryPredicates.ByCategoryIdAndUser(categoryId, userId)); 
 
                     if(category is not null) contact.Categories.Add(category);
                     else throw new Exception($"Category with ID {categoryId} not found for user {userId}.");
@@ -63,7 +64,61 @@ namespace AddressBook2025.Services
                 await context.SaveChangesAsync();
             }
         }
+        /// <summary>
+        /// Just updating Contact fields in this method;
+        /// Categories are updated in the DTO Service layer due to category's many to many relationship
+        /// </summary>
+        /// <param name="contact"></param>
+        /// <returns></returns>
+        public async Task UpdateContactAsync(Contact contact)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
 
+            if (await context.Contacts.AnyAsync(ContactPredicates.ByContactIdAndContactUser(contact)))
+            {
+                //If user does not browse for a new image, the old image is left alone and remains null
+                ImageUpload? OldImage = null;
+
+                //triggers when user browses for new image
+                if (contact.Image is not null)
+                {
+                    //look for the old image
+                   if(contact.ImageId !=contact.ImageId) OldImage = await context.Images.FirstOrDefaultAsync(img => img.Id == contact.ImageId);
+                    //save the new image-- overriding the oldImage id
+                    //save the child first
+                    if(contact.Image?.Id != null) contact.ImageId = contact.Image.Id;
+                    context.Images.Add(contact.Image!);
+                }
+
+                context.Contacts.Update(contact);
+                await context.SaveChangesAsync();
+                if (OldImage is not null)
+                {
+                    context.Images.Remove(OldImage);
+                    await context.SaveChangesAsync();
+
+                }
+            }
+        }
+
+        public  async Task RemoveCategoriesFromContact(int contactId, string userId)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            Contact? contact = await context.Contacts
+                                           .Include(c => c.Categories)
+                                           .FirstOrDefaultAsync(ContactPredicates.ByContactIdAndUser(contactId, userId));
+
+            if (contact is not null)
+            { 
+                //remove existing categories from the join table
+                contact.Categories.Clear();
+                //save changes
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
                                                      
