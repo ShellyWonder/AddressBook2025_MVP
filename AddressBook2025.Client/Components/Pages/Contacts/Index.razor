@@ -60,7 +60,7 @@
                                     .ThenBy(c => c.FirstName))
                     {
                         <div class="col">
-                            <ContactCard Contact="contact" OnDelete="DeleteContact"/>
+                            <ContactCard Contact="contact" OnDelete="DeleteContact" />
                         </div>
                     }
                 </div>
@@ -70,14 +70,14 @@
                 <div class="d-flex justify-content-center">
                     <!-- Restrict the width once and let everything inside follow it -->
                     <div class="text-center" style="max-width:22rem;">
-                         <!-- image -->
+                        <!-- image -->
                         <img src="img/shrug.png"
-                             class="img-fluid" 
+                             class="img-fluid"
                              alt="Cartoon person shrugging" />
 
                         <!-- headline -->
                         <p class="fs-4 mb-3 yellow no-contacts-headline ">
-                           No contacts found.
+                            No contacts found.
                         </p>
 
                         <!-- CTA button -->
@@ -142,5 +142,16 @@
     private async Task DeleteContact(int Id)
     {
         // call service
+        try
+        {
+            await contactService.DeleteContactAsync(Id, userInfo!.UserId);
+            contacts = contacts?.Where(c => c.Id != Id) ?? Enumerable.Empty<ContactDTO>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 }
+    
+

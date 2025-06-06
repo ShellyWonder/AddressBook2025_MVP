@@ -119,6 +119,19 @@ namespace AddressBook2025.Services
                 await context.SaveChangesAsync();
             }
         }
+
+        public async Task DeleteContactAsync(int id, string userId)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            Contact? contact = await context.Contacts.FirstOrDefaultAsync(ContactPredicates.ByIdAndUser(id, userId));
+            if (contact is not null)
+            {
+                context.Contacts.Remove(contact);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
                                                      
