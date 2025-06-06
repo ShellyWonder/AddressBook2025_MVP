@@ -25,13 +25,28 @@
                     <div class="card-text text-truncate">
                         <span class="fw-bold me-2">Email:</span> @Contact.Email
                     </div>
-                    <div class="fs-4">
-                        <a class="me-3 editIcons" href="/contacts/edit/@Contact.Id"><i class="bi bi-pencil-fill text-success"></i></a>
-                        <a class="me-3 editIcons" href="#"><i class="bi bi-envelope-fill text-warning"></i></a>
-                        <a class="me-3 editIcons" href="#"><i class="bi bi-trash-fill text-danger"></i></a>    
-                    </div>
+                    @if (isDeleting == false)
+                    {
+                        <div class="fs-4">
+                            <a class="me-3 editIcons" href="/contacts/edit/@Contact.Id"><i class="bi bi-pencil-fill text-success"></i></a>
+                            <a class="me-3 editIcons" href="#"><i class="bi bi-envelope-fill text-warning"></i></a>
+                            <a class="me-3 editIcons" role="button" @onclick="() => isDeleting = true"><i class="bi bi-trash-fill text-danger"></i></a>
+                        </div>
+
+                    }
+                    else
+                    {
+                        <div class="vstack mb-2">
+                            <span class="text-danger">@($"Are you sure you want to delete {Contact.FullName}?")</span>
+                            <div class="hstack gap-2">
+                              <button class="btn btn-sm btn-danger" @onclick="DeleteContact">Delete</button>
+                              <button class="btn btn-sm btn-secondary" @onclick="CancelDelete"> Cancel</button>
+                            </div>
+                        </div>
+                    }
+
                     <div class="hstack gap-2 flex-wrap">
-                        @foreach (CategoryDTO category in Contact.Categories.OrderBy(c=>c.Name))
+                        @foreach (CategoryDTO category in Contact.Categories.OrderBy(c => c.Name))
                         {
                             <a href="" class="text-decoration-none badge rounded-pill border border-1 fw-normal text-dark">
                                 @category.Name
@@ -49,11 +64,23 @@
 
 
 @code {
-    /// <summary>
-    /// Data should pass through a component.
-    ///The page handles the data retrieval and passes it to the component.
-    /// </summary>
-    [Parameter, EditorRequired]
-    public ContactDTO? Contact { get; set; }
+    /// <summary>  
+    /// Data should pass through a component.  
+    /// The page handles the data retrieval and passes it to the component.  
+    /// </summary>  
+    [Parameter, EditorRequired]  
+    public ContactDTO? Contact { get; set; }  
+    [Parameter, EditorRequired]  
+    public EventCallback<int> OnDelete { get; set; }  
 
+    private bool isDeleting = false;
+
+    private void CancelDelete() => isDeleting = false;
+   
+
+    private async Task DeleteContact()  
+    {  
+        await OnDelete.InvokeAsync(Contact!.Id);  
+        isDeleting = false;  
+    }  
 }
