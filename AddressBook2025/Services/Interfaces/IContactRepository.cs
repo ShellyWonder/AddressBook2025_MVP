@@ -16,7 +16,7 @@ namespace AddressBook2025.Services.Interfaces
         Task AddCategoriesToContactAsync(int contactId, string userId, List<int> categoryIds);
         //update
         Task UpdateContactAsync(Contact contact);
-        Task RemoveCategoriesFromContact(int contactId, string userId);
+        Task RemoveCategoriesFromContactAsync(int contactId, string userId);
 
     }
 }

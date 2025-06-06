@@ -1,8 +1,11 @@
 ﻿using AddressBook2025.Client.Models.DTOs;
 using AddressBook2025.Client.Services.Interfaces;
+using AddressBook2025.Components.Account.Pages.Manage;
 using AddressBook2025.Helpers;
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
+using Bogus.DataSets;
+using System.Reflection.Emit;
 
 namespace AddressBook2025.Services
 {
@@ -61,6 +64,50 @@ namespace AddressBook2025.Services
             //transform entities to DTOs
             List<ContactDTO> dtos = [.. contacts.Select(c=> c.ToDTO())];
             return dtos;
+        }
+
+        public async Task UpdateContactAsync(ContactDTO dto, string userId)
+        {
+            Contact? contact = await repository.GetContactByIdAsync(dto.Id, userId);
+
+            if (contact != null)
+            {
+                ///<summary>
+                //properties that are not included because they do not change on update:
+                // Created, AppUserId, and Id
+                ///</summary>
+                contact.FirstName = dto.FirstName;
+                contact.LastName = dto.LastName;
+                contact.BirthDate = dto.BirthDate;
+                contact.Email = dto.Email;
+                contact.PhoneNumber = dto.PhoneNumber;
+                contact.Address1 = dto.Address1;
+                contact.Address2 = dto.Address2;
+                contact.City = dto.City;
+                contact.State = dto.State;
+                contact.ZipCode = dto.ZipCode;
+            }
+            //triggers when a user uploads an image during update
+            if (dto.ProfileImageUrl?.StartsWith("data:") == true)
+            {
+                contact.Image = ImageHelper.GetImageUploadFromURL(dto.ProfileImageUrl);
+            }
+            else
+            {
+                //user did not select a new image during update
+                contact.Image = null;
+            }
+            //remove categories from the record
+            contact.Categories.Clear();
+            //save contact object without categories
+            await repository.UpdateContactAsync(contact);
+            //now remove categories from the join table
+            await repository.RemoveCategoriesFromContactAsync(contact.Id, userId);
+
+            //user's updated categories selected from the update(edit) form
+            List<int> categoryIds = dto.Categories.Select(c => c.Id).ToList();
+            //finally, add categories back to the db; "save" done in repository layer not the dto;
+             await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
         }
     }
 }

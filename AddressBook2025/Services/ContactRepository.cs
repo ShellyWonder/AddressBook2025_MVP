@@ -102,7 +102,7 @@ namespace AddressBook2025.Services
             }
         }
 
-        public  async Task RemoveCategoriesFromContact(int contactId, string userId)
+        public  async Task RemoveCategoriesFromContactAsync(int contactId, string userId)
         {
             //dbconnection
             using ApplicationDbContext context = contextFactory.CreateDbContext();
