@@ -1,0 +1,65 @@
+﻿@*ToastMessage Component *@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="toast text-@Color-emphasis bg-@Color-subtle border-@Color @(jsFailed ? "show" : "")" role="alert" aria-live="assertive" aria-atomic="true" @ref="toast">
+        <div class="d-flex">
+            <div class="toast-body flex-grow-1">
+                @Message
+            </div>
+            <button type="button" class="btn-close m-2 mb-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+@code {
+
+    /// <summary>
+    /// Message shows when the toast appears
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string? Message { get; set; }
+
+    /// <summary>
+    /// Bootstrap color for the toast's theme
+    /// </summary>
+    [Parameter]
+    public string? Color { get; set; } = "success";
+
+    //div passed into Js function
+    private ElementReference toast;
+    //imported js file
+    private IJSObjectReference? toastJS;
+    //allows for the toast div to show if the js fails
+    private bool jsFailed = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {   
+                //get the isolated js file for component
+                toastJS = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/UIComponents/ToastMessage.razor.js");
+                //call the export function to init and show toast
+                await toastJS.InvokeVoidAsync("initToast", toast);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                jsFailed = true;
+            }
+        }
+    }
+    // when importing a Js file, it needs to be disposed of to prevent memory issues
+    public async ValueTask DisposeAsync()
+    {
+        if (toastJS is not null)
+        {
+            await toastJS.DisposeAsync();
+        }
+    }
+}
