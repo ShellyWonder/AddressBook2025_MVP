@@ -1,11 +1,8 @@
 ﻿using AddressBook2025.Client.Models.DTOs;
 using AddressBook2025.Client.Services.Interfaces;
-using AddressBook2025.Components.Account.Pages.Manage;
 using AddressBook2025.Helpers;
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
-using Bogus.DataSets;
-using System.Reflection.Emit;
 
 namespace AddressBook2025.Services
 {
@@ -68,6 +65,14 @@ namespace AddressBook2025.Services
             List<Contact> contacts = await repository.GetContactsAsync(userId);
             //transform entities to DTOs
             List<ContactDTO> dtos = [.. contacts.Select(c=> c.ToDTO())];
+            return dtos;
+        }
+
+        public async Task <List<ContactDTO>> SearchContactsAsync(string searchTerm, string userId)
+        {
+            List<Contact> contacts = await repository.SearchContactAsync(searchTerm, userId);
+            //transform entities to DTOs
+            List<ContactDTO> dtos = [.. contacts.Select(c => c.ToDTO())];
             return dtos;
         }
 

@@ -3,6 +3,7 @@ using AddressBook2025.Data;
 
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
+using AddressBook2025.Helpers;
 
 namespace AddressBook2025.Services
 {
@@ -41,14 +42,14 @@ namespace AddressBook2025.Services
             //get category by id and userId
             Category? category = await context.Categories
                                       .Include(c => c.Contacts)
-                                       .FirstOrDefaultAsync(c => c.Id == id && c.AppUserId == userId);
+                                       .FirstOrDefaultAsync(CategoryPredicates.ByCategoryIdAndUser(id, userId));
             return category;
         }
 
         public async Task UpdateCategoryAsync(Category category, string userId)
         {
             using ApplicationDbContext context = contextFactory.CreateDbContext();
-            if (await context.Categories.AnyAsync(c => c.Id == category.Id && c.AppUserId == userId))
+            if (await context.Categories.AnyAsync(CategoryPredicates.ByIdAndUser(category, userId)))
             {
                 context.Categories.Update(category);
                 await context.SaveChangesAsync();
@@ -59,7 +60,8 @@ namespace AddressBook2025.Services
         {
             using ApplicationDbContext context = contextFactory.CreateDbContext();
             Category? category = context.Categories
-                .FirstOrDefault(c => c.Id == id && c.AppUserId == userId);
+                .FirstOrDefault(CategoryPredicates.ByCategoryIdAndUser(id, userId));
+
             if (category is not null)
             {
                 context.Categories.Remove(category);

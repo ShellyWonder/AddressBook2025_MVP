@@ -14,7 +14,7 @@ namespace AddressBook2025.Services
             using ApplicationDbContext context = contextFactory.CreateDbContext();
             //read all contacts for the userId
             List<Contact> contacts= await context.Contacts.Include(c => c.Categories) // Include categories if needed
-                .Where(c => c.AppUserId == userId)
+                .Where(ContactPredicates.ByUserId(userId))
                 .ToListAsync();
             return contacts;
         }
@@ -131,6 +131,25 @@ namespace AddressBook2025.Services
                 context.Contacts.Remove(contact);
                 await context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Contact>> SearchContactAsync(string searchTerm, string userId)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+            //convert all alpha characters to lowercase and trim spaces and non alpha characters
+            string searchTermLower = searchTerm.Trim().ToLower();
+            List<Contact> contacts = await context.Contacts.Where(ContactPredicates.ByUserId(userId))
+                                                           .Include(c => c.Categories)
+                                                           .Where(c => string.IsNullOrEmpty(searchTermLower)
+                                                            || c.FirstName!.ToLower().Contains(searchTermLower)
+                                                            || c.LastName!.ToLower().Contains(searchTermLower)
+                                                            || c.Categories.Any(cat => cat.Name!.ToLower()
+                                                                 .Contains(searchTermLower))
+
+                                                            ).ToListAsync();
+            return contacts;
+
         }
     }
 }
