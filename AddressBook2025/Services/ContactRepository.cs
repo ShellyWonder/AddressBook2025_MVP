@@ -144,6 +144,8 @@ namespace AddressBook2025.Services
                                                            .Where(c => string.IsNullOrEmpty(searchTermLower)
                                                             || c.FirstName!.ToLower().Contains(searchTermLower)
                                                             || c.LastName!.ToLower().Contains(searchTermLower)
+                                                            || (c.FirstName + " " + c.LastName).ToLower().Contains(searchTermLower)
+                                                            || (c.LastName + " " + c.FirstName).ToLower().Contains(searchTermLower)
                                                             || c.Categories.Any(cat => cat.Name!.ToLower()
                                                                  .Contains(searchTermLower))
 

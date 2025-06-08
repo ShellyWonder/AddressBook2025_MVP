@@ -35,14 +35,15 @@
                         <div class="input-group mb-3">
                             <InputText class="form-control border-0 rounded-2 ps-1"
                                        type="search"
-                                       placeholder="Search Contacts"
+                                       placeholder="Search Contacts by First, Last or Full Name"
                                        @bind-Value="searchInput" />
                             <input type="submit" class="btn btn-primary" value="Search" />
                         </div>
                     </form>
                     <div>
                         <label class="form-label mt-4">Filter by Category</label>
-                        <InputSelect class="form-select" @bind-Value="CategoryId">
+                      @*bind-Value captures the Id, then bind-Value:after runs the method *@
+                        <InputSelect class="form-select" @bind-Value="CategoryId" @bind-Value:after="OnCategorySelected">
                             <option value="">All Categories</option>
                             @foreach (var category in categories ?? Enumerable.Empty<CategoryDTO>())
                             {
@@ -147,16 +148,26 @@
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
         searchInput = SearchTerm;
-        CategoryId = null;
+     
 
         try
         {
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
+                //resets any selection in category filter to null
+                CategoryId = null;
                 contacts = await contactService.SearchContactsAsync(SearchTerm, userInfo!.UserId);
             }
+            else if(CategoryId is not null or 0)
+            {
+                //resets any selection in searchInput(searchTerm) to null
+                SearchTerm = null;
+                contacts = await contactService.GetContactsByCategoryAsync(CategoryId!.Value, userInfo!.UserId);
+            }
+
             else
             {
+
                 //Grab a list of contacts for the user
                 contacts = await contactService.GetContactsAsync(userInfo!.UserId);
             }
@@ -186,16 +197,31 @@
     }
     private void SearchContacts()
     {
-        ///Dictionary  = key value pair
+        ///Dictionary  = key value pair -- Name, value -- gets the search term in and out of the parameter
         Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
         {
-                { nameof(SearchTerm), searchInput }
+                { nameof(SearchTerm), searchInput }, //receiving data from the searchInput
+                { nameof(CategoryId), null } // not receiving data from the category filter
         };
 
         string url = navManager.GetUriWithQueryParameters(queryParameters);
         // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
         navManager.NavigateTo(url);
     }
+
+    private void OnCategorySelected()
+    {
+        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
+        {
+             { nameof(SearchTerm), null }, //not receiving data from the searchInput
+             { nameof(CategoryId), CategoryId } // receiving data from the category filter
+        };
+
+        string url = navManager.GetUriWithQueryParameters(queryParameters);
+        // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
+        navManager.NavigateTo(url);
+    }
+
 
     private void ShowToastMessage(string message)
     {
