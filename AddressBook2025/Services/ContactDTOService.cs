@@ -68,6 +68,13 @@ namespace AddressBook2025.Services
             return dtos;
         }
 
+        public async Task<List<ContactDTO>> GetContactsByCategoryAsync(int categoryId, string userId)
+        {
+            List<Contact> contacts = await repository.GetContactsByCategoryAsync(categoryId, userId);
+            List<ContactDTO> dtos = [.. contacts.Select(c => c.ToDTO())];
+            return dtos;
+        }
+
         public async Task <List<ContactDTO>> SearchContactsAsync(string searchTerm, string userId)
         {
             List<Contact> contacts = await repository.SearchContactAsync(searchTerm, userId);

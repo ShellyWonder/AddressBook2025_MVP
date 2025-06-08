@@ -13,7 +13,7 @@ namespace AddressBook2025.Services
             //dbconnection
             using ApplicationDbContext context = contextFactory.CreateDbContext();
             //read all contacts for the userId
-            List<Contact> contacts= await context.Contacts.Include(c => c.Categories) // Include categories if needed
+            List<Contact> contacts = await context.Contacts.Include(c => c.Categories) // Include categories if needed
                 .Where(ContactPredicates.ByUserId(userId))
                 .ToListAsync();
             return contacts;
@@ -40,7 +40,7 @@ namespace AddressBook2025.Services
             await context.SaveChangesAsync();
             return contact;
         }
-      
+
         //one(contact) to many(category) relationship handled by a db join table
         public async Task AddCategoriesToContactAsync(int contactId, string userId, List<int> categoryIds)
         {
@@ -55,9 +55,9 @@ namespace AddressBook2025.Services
                 //writes to the join table
                 foreach (int categoryId in categoryIds)
                 {
-                    Category? category = await context.Categories.Include(c => c.Contacts).FirstOrDefaultAsync(CategoryPredicates.ByCategoryIdAndUser(categoryId, userId)); 
+                    Category? category = await context.Categories.Include(c => c.Contacts).FirstOrDefaultAsync(CategoryPredicates.ByCategoryIdAndUser(categoryId, userId));
 
-                    if(category is not null) contact.Categories.Add(category);
+                    if (category is not null) contact.Categories.Add(category);
                     else throw new Exception($"Category with ID {categoryId} not found for user {userId}.");
                 }
                 //save changes to the database
@@ -84,10 +84,10 @@ namespace AddressBook2025.Services
                 if (contact.Image is not null)
                 {
                     //look for the old image
-                   if(contact.ImageId !=contact.ImageId) OldImage = await context.Images.FirstOrDefaultAsync(img => img.Id == contact.ImageId);
+                    if (contact.ImageId != contact.ImageId) OldImage = await context.Images.FirstOrDefaultAsync(img => img.Id == contact.ImageId);
                     //save the new image-- overriding the oldImage id
                     //save the child first
-                    if(contact.Image?.Id != null) contact.ImageId = contact.Image.Id;
+                    if (contact.Image?.Id != null) contact.ImageId = contact.Image.Id;
                     context.Images.Add(contact.Image!);
                 }
 
@@ -102,7 +102,7 @@ namespace AddressBook2025.Services
             }
         }
 
-        public  async Task RemoveCategoriesFromContactAsync(int contactId, string userId)
+        public async Task RemoveCategoriesFromContactAsync(int contactId, string userId)
         {
             //dbconnection
             using ApplicationDbContext context = contextFactory.CreateDbContext();
@@ -112,7 +112,7 @@ namespace AddressBook2025.Services
                                            .FirstOrDefaultAsync(ContactPredicates.ByContactIdAndUser(contactId, userId));
 
             if (contact is not null)
-            { 
+            {
                 //remove existing categories from the join table
                 contact.Categories.Clear();
                 //save changes
@@ -147,10 +147,21 @@ namespace AddressBook2025.Services
                                                             || c.Categories.Any(cat => cat.Name!.ToLower()
                                                                  .Contains(searchTermLower))
 
-                                                            ).ToListAsync();
+                                                           ).ToListAsync();
             return contacts;
 
         }
+
+        public  async Task<List<Contact>> GetContactsByCategoryAsync(int categoryId, string userId)
+        {
+            //dbconnection
+            using ApplicationDbContext context = contextFactory.CreateDbContext();
+                Category? category = await context.Categories.Include(c => c.Contacts)
+                                                            .ThenInclude(c => c.Categories)
+                                                            .FirstOrDefaultAsync(CategoryPredicates.ByCategoryIdAndUser(categoryId,userId));
+
+            //returns ONE category with list of contacts : returns an empty array;
+            return category?.Contacts.ToList() ?? [];
+        }
     }
 }
-                                                     

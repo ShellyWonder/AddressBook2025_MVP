@@ -17,5 +17,6 @@ namespace AddressBook2025.Helpers
         public static Expression<Func<Contact, bool>> ByContactIdAndUser(int contactId, string userId) =>
             c => c.Id == contactId && c.AppUserId == userId;
 
+        
     }
 }

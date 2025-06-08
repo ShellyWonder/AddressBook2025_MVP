@@ -15,5 +15,12 @@ namespace AddressBook2025.Client.Services.Interfaces
         //update
         Task UpdateContactAsync(ContactDTO contact, string userId);
 
+        //delete 
+        Task DeleteContactAsync(int id, string userId);
+        //Search
+        Task<List<ContactDTO>> SearchContactsAsync( string searchTerm,string userId);
+
+        //filter by category
+        Task<List<ContactDTO>> GetContactsByCategoryAsync(int categoryId, string userId);
     }
 }
