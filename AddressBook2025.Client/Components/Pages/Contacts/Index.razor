@@ -30,32 +30,37 @@
         @if (HasContacts)
         {
             <div class="col-12 col-lg-4">
-                <form>
-                    <div class="input-group mb-3">
-                        <InputText class="form-control border-0 rounded-2 ps-1"
-                                   type="search"
-                                   placeholder="Search Contacts"
-                                   @bind-Value="searchInput" />
-                        <input type="submit" class="btn btn-primary" value="Search" />
+                <div class="mb-3 sideNav">
+                    <form @onsubmit="SearchContacts">
+                        <div class="input-group mb-3">
+                            <InputText class="form-control border-0 rounded-2 ps-1"
+                                       type="search"
+                                       placeholder="Search Contacts"
+                                       @bind-Value="searchInput" />
+                            <input type="submit" class="btn btn-primary" value="Search" />
+                        </div>
+                    </form>
+                    <div>
+                        <label class="form-label mt-4">Filter by Category</label>
+                        <InputSelect class="form-select" @bind-Value="CategoryId">
+                            <option value="">All Categories</option>
+                            @foreach (var category in categories ?? Enumerable.Empty<CategoryDTO>())
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </InputSelect>
                     </div>
-                </form>
-                <div>
-                    <label class="form-label mt-4">Filter by Category</label>
-                    <InputSelect class="form-select" @bind-Value="CategoryId">
-                        <option value="">All Categories</option>
-                        @foreach (var category in categories ?? Enumerable.Empty<CategoryDTO>())
-                        {
-                            <option value="@category.Id">@category.Name</option>
-                        }
-                    </InputSelect>
                 </div>
+                <!-- #region TOAST MESSAGE -->
                 <div class="mt-3">
+
                     @if (!string.IsNullOrEmpty(toastMessage))
                     {
                         <ToastMessage @key="messageID" Message="@toastMessage" Color="@messageColor" />
 
                     }
                 </div>
+                <!-- #endregion -->
             </div>
         }
         <!-- Contacts / Empty-state column -->
@@ -102,19 +107,23 @@
 </div>
 
 @code {
-    [SupplyParameterFromQuery]
-    private int? CategoryId { get; set; }
-
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private int? CategoryId { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? SearchTerm { get; set; }
+
 
     private UserInfo? userInfo;
     private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
     private IEnumerable<CategoryDTO>? categories = Array.Empty<CategoryDTO>();
 
     private bool HasContacts => contacts?.Any() == true;
-    private string searchInput = string.Empty;
+    private string? searchInput;
     private string? toastMessage;
     private string? messageColor;
     private Guid messageID = Guid.NewGuid();
@@ -137,18 +146,27 @@
     protected override async Task OnParametersSetAsync()
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        searchInput = SearchTerm;
         CategoryId = null;
 
         try
         {
-            //Grab a list of contacts for the user
-            contacts = await contactService.GetContactsAsync(userInfo!.UserId);
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                contacts = await contactService.SearchContactsAsync(SearchTerm, userInfo!.UserId);
+            }
+            else
+            {
+                //Grab a list of contacts for the user
+                contacts = await contactService.GetContactsAsync(userInfo!.UserId);
+            }
 
         }
         catch (Exception ex)
         {
 
             Console.WriteLine(ex);
+            ShowToastMessage("Oops! Something went wrong. Please refresh the page or try again later.");
         }
     }
     private async Task DeleteContact(int Id)
@@ -165,6 +183,18 @@
             ShowToastMessage("Oops! Something went wrong. Try again later.");
 
         }
+    }
+    private void SearchContacts()
+    {
+        ///Dictionary  = key value pair
+        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
+        {
+                { nameof(SearchTerm), searchInput }
+        };
+
+        string url = navManager.GetUriWithQueryParameters(queryParameters);
+        // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
+        navManager.NavigateTo(url);
     }
 
     private void ShowToastMessage(string message)
