@@ -1,13 +1,19 @@
 ﻿@* Contact Email *@  
-@page "/contacts/email/{contactId:int}"  
-@attribute [Authorize]  
+@page "/contacts/email/{contactId:int}"
+@attribute [Authorize]
 @rendermode InteractiveServer
+
+@inject NavigationManager navManager
+@inject IContactDTOService contactService
+
 
 @if (emailData is not null)
 {
-    <div class="card shadow-lg my-3">
-        <div class="card-body">   
-
+    <div class="container">
+        <div class="card shadow-lg my-3">
+            <div class="card-body">
+                <EmailForm EmailData="emailData" OnSubmit="SendEmailAsync" />
+            </div>
         </div>
     </div>
 }
@@ -25,4 +31,41 @@
 
     //model
     private EmailData? emailData;
-}    
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
+            contact = await contactService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            //use ToastMessage??
+        }
+
+        if (contact is not null)
+        {
+            emailData = new EmailData()
+            {
+                Recipients = contact.Email!,
+                Subject = $"Message for {contact.FullName}",
+                Body = string.Empty
+            };
+        }
+        else
+        {
+            navManager.NavigateTo("/contacts");
+        }
+    }
+
+    private async Task SendEmailAsync(EmailData formEmailData)
+    {
+        //call email service
+
+        //navigate to Contact Page
+        navManager.NavigateTo("/contacts");
+    }
+}
