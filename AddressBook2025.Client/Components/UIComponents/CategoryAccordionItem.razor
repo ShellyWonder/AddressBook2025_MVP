@@ -22,22 +22,21 @@
                     <div>
                         <div class="mt-2 mt-lg-0">
                             <span class="text-nowrap">
-
+                                <a role="button"
+                                   class="me-1"
+                                   @onclick="() => status = Status.Editing">
+                                    <i class="bi bi-pencil-fill" aria-label="Edit Category"></i>
+                                </a>
+                                <a role="button" class="me-1" @onclick="() => status = Status.Deleting">
+                                    <i class="bi bi-trash-fill text-danger" aria-label="Delete Category"></i>
+                                </a>
+                                <a role="button" href="/contacts?categoryId=@Category.Id" class="me-1">
+                                    <i class="bi bi-eye-fill" aria-label="View Category Members"></i>
+                                </a>
+                                <a role="button" href="/categories/email/@Category.Id" class="me-1">
+                                    <i class="bi bi-envelope-fill" aria-label="Email Category Members"></i>
+                                </a>
                             </span>
-                            <a role="button"
-                               class="me-1"
-                               @onclick="() => status = Status.Editing">
-                                <i class="bi bi-pencil-fill" aria-label="Edit Category"></i>
-                            </a>
-                            <a role="button" class="me-1" @onclick="() => status = Status.Deleting">
-                                <i class="bi bi-trash-fill text-danger" aria-label="Delete Category"></i>
-                            </a>
-                            <a role="button" class="me-1">
-                                <i class="bi bi-eye-fill" aria-label="View Category Members"></i>
-                            </a>
-                            <a role="button" class="me-1">
-                                <i class="bi bi-envelope-fill" aria-label="Email Category Members"></i>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -119,9 +118,9 @@
                         @foreach (ContactDTO contact in Category.Contacts)
                         {
                             <li class="list-group-item d-flex gap-3 align-items-center">
-                                <a href="/contacts/edit/@contact.Id"class="text-decoration-none  text-dark">
+                                <a href="/contacts/edit/@contact.Id" class="text-decoration-none  text-dark">
                                     <img class="contact-preview-img" src="@contact.ProfileImageUrl" alt="image for @contact.FullName" />
-                                  <span>@contact.FullName</span>
+                                    <span>@contact.FullName</span>
                                 </a>
                             </li>
                         }

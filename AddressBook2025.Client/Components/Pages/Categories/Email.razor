@@ -1,19 +1,20 @@
-﻿@* Contact Email *@  
-@page "/contacts/email/{contactId:int}"
+﻿@* Category Email *@
+@page "/categories/email/{categoryId:int}"
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+@inject ICategoryDTOService categoryDTOService
 @inject NavigationManager navManager
-@inject IContactDTOService contactService
 
 
-<PageTitle>Black Book Pro | Email Contact</PageTitle>
+<PageTitle>Black Book Pro | Email Category</PageTitle>
+
 @if (emailData is not null)
 {
     <div class="container">
         <div class="card shadow-lg my-3">
             <div class="card-body">
-                <EmailForm EmailData="emailData" OnSubmit="SendEmailAsync" />
+                <EmailForm EmailData="emailData" OnSubmit="SendEmail" />
             </div>
         </div>
     </div>
@@ -21,38 +22,38 @@
 
 
 @code {
+
     [Parameter]
-    public int ContactId { get; set; }
+    public int CategoryId { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthStateTask { get; set; }
 
-    private ContactDTO? contact;
+    private CategoryDTO? category;
     private UserInfo? userInfo;
-
-    //model
     private EmailData? emailData;
+
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-            contact = await contactService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+            category = await categoryDTOService.GetCategoryByIdAsync(CategoryId, userInfo!.UserId);
         }
         catch (Exception ex)
         {
-
             Console.WriteLine(ex);
-            //use ToastMessage??
+            throw;
         }
 
-        if (contact is not null)
+        if (category is not null)
         {
             emailData = new EmailData()
             {
-                Recipients = contact.Email!,
-                Subject = $"Message for {contact.FullName}",
+                //returns an array of contacts with one field, email, separated with a semi-colon(";");
+                Recipients = string.Join(";",category.Contacts.Select(category => category.Email)),
+                Subject = $"Group message for {category.Name}",
                 Body = string.Empty
             };
         }
@@ -62,7 +63,7 @@
         }
     }
 
-    private async Task SendEmailAsync(EmailData formEmailData)
+    private async Task SendEmail(EmailData formEmailData)
     {
         string message = "Something went wrong. Please try again later.";
         //call email service

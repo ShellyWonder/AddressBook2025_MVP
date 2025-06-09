@@ -118,6 +118,11 @@
     [SupplyParameterFromQuery]
     private string? SearchTerm { get; set; }
 
+    [SupplyParameterFromQuery]
+    private string? Message { get; set; }
+
+
+
 
     private UserInfo? userInfo;
     private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
@@ -144,11 +149,16 @@
             Console.WriteLine(ex);
         }
     }
+
     protected override async Task OnParametersSetAsync()
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
         searchInput = SearchTerm;
-     
+
+        if (!string.IsNullOrEmpty(Message))
+        {
+            ShowToastMessage(Message);
+        }
 
         try
         {
