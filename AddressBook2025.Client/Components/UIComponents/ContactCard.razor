@@ -27,6 +27,7 @@
                     </div>
                     @if (isDeleting == false)
                     {
+                                     <!--ACTION ICONS-->
                         <div class="fs-4">
                             <a class="me-3 editIcons" href="/contacts/edit/@Contact.Id"><i class="bi bi-pencil-fill text-success"></i></a>
                             <a class="me-3 editIcons" href="#"><i class="bi bi-envelope-fill text-warning"></i></a>
@@ -36,6 +37,7 @@
                     }
                     else
                     {
+                                     <!--CONTACT DELETE-->
                         <div class="vstack mb-2">
                             <span class="text-danger">@($"Are you sure you want to delete {Contact.FullName}?")</span>
                             <div class="hstack gap-2">
@@ -44,11 +46,11 @@
                             </div>
                         </div>
                     }
-
+                    <!--CATEGORY BADGES-->
                     <div class="hstack gap-2 flex-wrap">
                         @foreach (CategoryDTO category in Contact.Categories.OrderBy(c => c.Name))
                         {
-                            <a href="" class="text-decoration-none badge rounded-pill border border-1 fw-normal text-dark">
+                            <a href="/contacts?categoryId=@category.Id" class="text-decoration-none badge rounded-pill border border-1 fw-normal text-dark">
                                 @category.Name
                             </a>
                         }
