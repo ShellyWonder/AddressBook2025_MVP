@@ -1,0 +1,28 @@
+﻿@* Contact Email *@  
+@page "/contacts/email/{contactId:int}"  
+@attribute [Authorize]  
+@rendermode InteractiveServer
+
+@if (emailData is not null)
+{
+    <div class="card shadow-lg my-3">
+        <div class="card-body">   
+
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int ContactId { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private ContactDTO? contact;
+    private UserInfo? userInfo;
+
+    //model
+    private EmailData? emailData;
+}    

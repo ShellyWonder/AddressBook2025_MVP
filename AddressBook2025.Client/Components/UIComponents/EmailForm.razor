@@ -1,0 +1,53 @@
+﻿@* EmailForm *@
+
+
+@if (EmailData is not null)
+{
+    <div class="p-2">
+
+        <EditForm Model="EmailData" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <div class="row row-cols-1 g-3">
+                <div class="col">
+                    <label class="form-label">To:</label>
+                    <InputTextArea typeof="email" readonly class="form-control" rows="3" @bind-Value="EmailData.Recipients"></InputTextArea>
+                    <ValidationMessage For="() => EmailData.Recipients" />
+                </div>
+                <div class="col">
+                    <label class="form-label">Subject:</label>
+                    <InputText type="text" class="form-control" @bind-Value="EmailData.Subject"></InputText>
+                    <ValidationMessage For="() => EmailData.Subject" />
+                </div>
+                <div class="col">
+                    <label class="form-label">Message:</label>
+                    <InputTextArea class="form-control" rows="10" @bind-Value="EmailData.Body"></InputTextArea>
+                    <ValidationMessage For="() => EmailData.Body" />
+                </div>
+                <div class="col text-end">
+                    <button class="btn btn-lg btn-primary rounded-pill" type="submit"><i class="bi bi-envelope"></i>Send</button>
+                </div>
+                <div class="col text-start">
+                    <a href="/contacts" class="btn btn-lg btn-secondary rounded-pill"><i class="bi bi-arrow-left"></i>Back to Contacts</a>
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
+
+}
+
+@code {
+
+
+    [Parameter, EditorRequired]
+    public EmailData? EmailData { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<EmailData> OnSubmit { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        await OnSubmit.InvokeAsync(EmailData);
+    }
+
+}
