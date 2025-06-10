@@ -7,6 +7,7 @@ using AddressBook2025.Client.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,8 +46,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
-
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+//email service
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, SendGridService>(); //use for identity
+builder.Services.AddSingleton<IEmailSender, SendGridService>(); //use for app  contact emails
 
 //repositories
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
@@ -55,7 +57,6 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 // DTO services
 builder.Services.AddScoped<ICategoryDTOService, CategoryDTOService>();
 builder.Services.AddScoped<IContactDTOService, ContactDTOService>();
-
 
 var app = builder.Build();
 
