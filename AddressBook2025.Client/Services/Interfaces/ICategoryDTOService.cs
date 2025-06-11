@@ -1,4 +1,5 @@
-﻿using AddressBook2025.Client.Models.DTOs;
+﻿using AddressBook2025.Client.Models;
+using AddressBook2025.Client.Models.DTOs;
 
 namespace AddressBook2025.Client.Services.Interfaces
 {
@@ -17,5 +18,8 @@ namespace AddressBook2025.Client.Services.Interfaces
 
         //delete a category 
         Task DeleteCategoryAsync(int id, string userId);
+
+        //send email
+        Task <bool> EmailCategoryAsync(int id, EmailData emailData, string userId);
     }
 }

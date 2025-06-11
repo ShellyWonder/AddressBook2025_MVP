@@ -106,28 +106,32 @@ namespace AddressBook2025.Services
                 contact.City = dto.City;
                 contact.State = dto.State;
                 contact.ZipCode = dto.ZipCode;
-            }
-            //triggers when a user uploads an image during update
-            if (dto.ProfileImageUrl?.StartsWith("data:") == true)
-            {
-                contact.Image = ImageHelper.GetImageUploadFromURL(dto.ProfileImageUrl);
-            }
-            else
-            {
-                //user did not select a new image during update
-                contact!.Image = null;
-            }
-            //remove categories from the record
-            contact.Categories.Clear();
-            //save contact object without categories
-            await repository.UpdateContactAsync(contact);
-            //now remove categories from the join table
-            await repository.RemoveCategoriesFromContactAsync(contact.Id, userId);
 
-            //user's updated categories selected from the update(edit) form
-            List<int> categoryIds = dto.Categories.Select(c => c.Id).ToList();
-            //finally, add categories back to the db; "save" done in repository layer not the dto;
-            await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
+                //triggers when a user uploads an image during update
+                if (dto.ProfileImageUrl?.StartsWith("data:") == true)
+                {
+                    contact.Image = ImageHelper.GetImageUploadFromURL(dto.ProfileImageUrl);
+                }
+                else
+                {
+                    //user did not select a new image during update
+                    contact!.Image = null;
+                }
+                //remove categories from the record
+                contact.Categories.Clear();
+
+                //save contact object without categories
+                await repository.UpdateContactAsync(contact);
+
+                //now remove categories from the join table
+                await repository.RemoveCategoriesFromContactAsync(contact.Id, userId);
+
+                //user's updated categories selected from the update(edit) form
+                List<int> categoryIds = dto.Categories.Select(c => c.Id).ToList();
+
+                //finally, add categories back to the db; "save" done in repository layer not the dto;
+                await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
+            }
         }
 
         public async Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
@@ -137,7 +141,7 @@ namespace AddressBook2025.Services
 
             try
             {
-                await emailSender.SendEmailAsync(contact.Email, emailData.Subject, emailData.Body);
+                await emailSender.SendEmailAsync(contact.Email!, emailData.Subject, emailData.Body);
                 return true;
             }
             catch (Exception)

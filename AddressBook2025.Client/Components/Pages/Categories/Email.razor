@@ -44,7 +44,7 @@
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            throw;
+            
         }
 
         if (category is not null)
@@ -52,7 +52,7 @@
             emailData = new EmailData()
             {
                 //returns an array of contacts with one field, email, separated with a semi-colon(";");
-                Recipients = string.Join(";",category.Contacts.Select(category => category.Email)),
+                Recipients = string.Join(";", category.Contacts.Select(category => category.Email)),
                 Subject = $"Group message for {category.Name}",
                 Body = string.Empty
             };
@@ -66,8 +66,18 @@
     private async Task SendEmail(EmailData formEmailData)
     {
         string message = "Something went wrong. Please try again later.";
-        //call email service
+        try
+        {
+            //call email service
+            bool success = await categoryDTOService.EmailCategoryAsync(CategoryId, formEmailData, userInfo!.UserId);
+            if (success) message = $"Email successfully sent to contacts in your {category!.Name}.";
 
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+        }
         //navigate to Contact Page
         navManager.NavigateTo($"/contacts?message={message}");
     }

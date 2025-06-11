@@ -1,20 +1,23 @@
-﻿using AddressBook2025.Client.Models.DTOs;
+﻿using AddressBook2025.Client.Models;
+using AddressBook2025.Client.Models.DTOs;
 using AddressBook2025.Client.Services.Interfaces;
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace AddressBook2025.Services
 {
-    public class CategoryDTOService(ICategoryRepository repository) : ICategoryDTOService
+    public class CategoryDTOService(ICategoryRepository repository, IEmailSender emailSender) : ICategoryDTOService
     {
         public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO category, string userId)
         {
             Category newCategory = new()
-             {
+            {
                 AppUserId = userId,
                 Name = category.Name,
-             };
-        newCategory = await repository.CreateCategoryAsync(newCategory);
+            };
+            newCategory = await repository.CreateCategoryAsync(newCategory);
             return newCategory.ToDTO();
         }
 
@@ -28,7 +31,7 @@ namespace AddressBook2025.Services
         public async Task<CategoryDTO> GetCategoryByIdAsync(int id, string userId)
         {
             Category? category = await repository.GetCategoryByIdAsync(id, userId);
-            return category?.ToDTO() ?? 
+            return category?.ToDTO() ??
                 throw new KeyNotFoundException($"Category with ID {id} not found for user {userId}.");
         }
 
@@ -43,11 +46,29 @@ namespace AddressBook2025.Services
 
                 await repository.UpdateCategoryAsync(categoryToUpdate, userId);
             }
-            
+
         }
         public async Task DeleteCategoryAsync(int id, string userId)
         {
-             await repository.DeleteCategoryAsync(id, userId);
+            await repository.DeleteCategoryAsync(id, userId);
+        }
+
+        public async Task<bool> EmailCategoryAsync(int id, EmailData emailData, string userId)
+        {
+            Category? category = await repository.GetCategoryByIdAsync(id, userId);
+            if (category is null || category.Contacts.Count < 1) return false;
+
+            try
+            {   //create one string of emails(each separated by a ;) pulled out of the contacts in a category 
+                string recipients = string.Join(";", category.Contacts.Select(c => c.Email));
+                    await emailSender.SendEmailAsync(recipients, emailData.Subject, emailData.Body);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
     }
 
