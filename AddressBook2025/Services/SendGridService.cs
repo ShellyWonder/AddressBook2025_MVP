@@ -18,8 +18,8 @@ namespace AddressBook2025.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            SendGridClient client = new SendGridClient(_sendGridKey);
-            EmailAddress from = new EmailAddress(_fromAddress, _fromName);
+            SendGridClient client = new(_sendGridKey);
+            EmailAddress from = new(_fromAddress, _fromName);
             string plainTextContent = Regex.Replace(htmlMessage, "<[a-zA-Z].*?>", "").Trim();
             //works for singular email or multiples
             List<string> emails = [.. email.Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)];

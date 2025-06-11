@@ -40,7 +40,7 @@ namespace AddressBook2025.Services
             newContact = await repository.CreateContactAsync(newContact);
 
             //add (update new contact)categories to the contact
-            List<int> categoryIds = dto.Categories?.Select(c => c.Id).ToList() ?? new List<int>();
+            List<int> categoryIds = dto.Categories?.Select(c => c.Id).ToList() ?? [];
             await repository.AddCategoriesToContactAsync(newContact.Id, userId, categoryIds);
 
             //Since the new contact has been updated with categories, requery the database 
@@ -127,7 +127,7 @@ namespace AddressBook2025.Services
                 await repository.RemoveCategoriesFromContactAsync(contact.Id, userId);
 
                 //user's updated categories selected from the update(edit) form
-                List<int> categoryIds = dto.Categories.Select(c => c.Id).ToList();
+                List<int> categoryIds = [.. dto.Categories.Select(c => c.Id)];
 
                 //finally, add categories back to the db; "save" done in repository layer not the dto;
                 await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
