@@ -1,4 +1,5 @@
-﻿using AddressBook2025.Client.Models.DTOs;
+﻿using AddressBook2025.Client.Models;
+using AddressBook2025.Client.Models.DTOs;
 
 namespace AddressBook2025.Client.Services.Interfaces
 {
@@ -22,5 +23,8 @@ namespace AddressBook2025.Client.Services.Interfaces
 
         //filter by category
         Task<List<ContactDTO>> GetContactsByCategoryAsync(int categoryId, string userId);
+
+        //email
+        Task<bool> EmailContactAsync(int id, EmailData emailData, string userId);
     }
 }

@@ -3,10 +3,13 @@ using AddressBook2025.Client.Services.Interfaces;
 using AddressBook2025.Helpers;
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
+using AddressBook2025.Client.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace AddressBook2025.Services
 {
-    public class ContactDTOService(IContactRepository repository) : IContactDTOService
+    public class ContactDTOService(IContactRepository repository, IEmailSender emailSender) : IContactDTOService
     {
         public async Task<ContactDTO> CreateContactAsync(ContactDTO dto, string userId)
         {
@@ -42,15 +45,15 @@ namespace AddressBook2025.Services
 
             //Since the new contact has been updated with categories, requery the database 
             // read method
-            newContact = await repository.GetContactByIdAsync(newContact.Id, userId) 
+            newContact = await repository.GetContactByIdAsync(newContact.Id, userId)
                                           ?? throw new Exception("Contact not found after creation.");
             //transform entity to DTO
             return newContact.ToDTO();
         }
 
-        public  async Task DeleteContactAsync(int id, string userId)
+        public async Task DeleteContactAsync(int id, string userId)
         {
-             await repository.DeleteContactAsync(id, userId);
+            await repository.DeleteContactAsync(id, userId);
         }
 
         public async Task<ContactDTO> GetContactByIdAsync(int id, string userId)
@@ -64,7 +67,7 @@ namespace AddressBook2025.Services
         {
             List<Contact> contacts = await repository.GetContactsAsync(userId);
             //transform entities to DTOs
-            List<ContactDTO> dtos = [.. contacts.Select(c=> c.ToDTO())];
+            List<ContactDTO> dtos = [.. contacts.Select(c => c.ToDTO())];
             return dtos;
         }
 
@@ -75,7 +78,7 @@ namespace AddressBook2025.Services
             return dtos;
         }
 
-        public async Task <List<ContactDTO>> SearchContactsAsync(string searchTerm, string userId)
+        public async Task<List<ContactDTO>> SearchContactsAsync(string searchTerm, string userId)
         {
             List<Contact> contacts = await repository.SearchContactAsync(searchTerm, userId);
             //transform entities to DTOs
@@ -112,7 +115,7 @@ namespace AddressBook2025.Services
             else
             {
                 //user did not select a new image during update
-                contact.Image = null;
+                contact!.Image = null;
             }
             //remove categories from the record
             contact.Categories.Clear();
@@ -124,7 +127,24 @@ namespace AddressBook2025.Services
             //user's updated categories selected from the update(edit) form
             List<int> categoryIds = dto.Categories.Select(c => c.Id).ToList();
             //finally, add categories back to the db; "save" done in repository layer not the dto;
-             await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
+            await repository.AddCategoriesToContactAsync(contact.Id, userId, categoryIds);
+        }
+
+        public async Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
+        {
+            Contact? contact = await repository.GetContactByIdAsync(id, userId);
+            if (contact is null) return false;
+
+            try
+            {
+                await emailSender.SendEmailAsync(contact.Email, emailData.Subject, emailData.Body);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
     }
 }

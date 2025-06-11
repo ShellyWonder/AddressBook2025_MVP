@@ -44,7 +44,7 @@
         {
 
             Console.WriteLine(ex);
-            //use ToastMessage??
+
         }
 
         if (contact is not null)
@@ -66,7 +66,17 @@
     {
         string message = "Something went wrong. Please try again later.";
         //call email service
+        try
+        {
+            bool success = await contactService.EmailContactAsync(ContactId, formEmailData, userInfo!.UserId);
 
+            if (success) message = $"Email successfully sent to {contact!.FullName}.";
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
         //navigate to Contact Page
         navManager.NavigateTo($"/contacts?message={message}");
     }
