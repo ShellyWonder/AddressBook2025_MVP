@@ -54,6 +54,21 @@ namespace AddressBook2025.Controllers
             }  
         }
 
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteContact([FromRoute] int id)
+        {
+            try
+            {
+                await contactService.DeleteContactAsync(id, UserId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
         #endregion
     }
 }

@@ -12,9 +12,10 @@ namespace AddressBook2025.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task DeleteContactAsync(int id, string userId)
+        public async Task DeleteContactAsync(int id, string userId)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await http.DeleteAsync($"api/contacts/{id}");
+            response.EnsureSuccessStatusCode();
         }
 
         public Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
