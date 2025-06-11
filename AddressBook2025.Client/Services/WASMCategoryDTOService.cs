@@ -1,4 +1,5 @@
-﻿using AddressBook2025.Client.Models.DTOs;
+﻿using AddressBook2025.Client.Models;
+using AddressBook2025.Client.Models.DTOs;
 using AddressBook2025.Client.Services.Interfaces;
 using System.Net.Http.Json;
 
@@ -38,8 +39,9 @@ namespace AddressBook2025.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-
-
-
+        public Task<bool> EmailCategoryAsync(int id, EmailData emailData, string userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
