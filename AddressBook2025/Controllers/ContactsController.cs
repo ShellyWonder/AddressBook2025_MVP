@@ -1,5 +1,4 @@
 ﻿using AddressBook2025.Client.Services.Interfaces;
-using AddressBook2025.Client.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +32,40 @@ namespace AddressBook2025.Controllers
             catch (Exception ex)
             {
 
-               Console.WriteLine(ex);
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ContactDTO>> GetContactByIdAsync([FromRoute] int id)
+        {
+            try
+            {
+                ContactDTO contact = await contactService.GetContactByIdAsync(id,UserId);
+                return contact is null ? NotFound() : contact;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+
+                return Problem();
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ContactDTO>> CreateContact([FromBody] ContactDTO contact)
+        {
+            try
+            {
+                ContactDTO newContact = await contactService.CreateContactAsync(contact, UserId);
+                    return CreatedAtAction(nameof(GetContactByIdAsync), new {id = newContact.Id},newContact);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
                 return Problem();
             }
         }

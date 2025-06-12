@@ -7,9 +7,13 @@ namespace AddressBook2025.Client.Services
 {
     public class WASMContactDTOService(HttpClient http) : IContactDTOService
     {
-        public Task<ContactDTO> CreateContactAsync(ContactDTO contact, string userId)
+        public async Task<ContactDTO> CreateContactAsync(ContactDTO contact, string userId)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await http.PostAsJsonAsync("api/contacts", contact);
+            response.EnsureSuccessStatusCode();
+            ContactDTO? createdContact = await response.Content.ReadFromJsonAsync<ContactDTO?>();
+
+            return createdContact ?? throw new HttpRequestException("Invalid JSON response from server");
         }
 
         public async Task DeleteContactAsync(int id, string userId)
@@ -23,9 +27,18 @@ namespace AddressBook2025.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<ContactDTO> GetContactByIdAsync(int id, string userId)
+        public async Task<ContactDTO?> GetContactByIdAsync(int id, string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var contact = await http.GetFromJsonAsync<ContactDTO?>($"api/contacts/{id}");
+                return contact ?? throw new HttpRequestException("Contact not found or invalid JSON response.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
         }
 
         public async Task<List<ContactDTO>> GetContactsAsync(string userId)
