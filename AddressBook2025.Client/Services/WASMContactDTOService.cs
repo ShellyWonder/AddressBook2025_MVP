@@ -7,6 +7,7 @@ namespace AddressBook2025.Client.Services
 {
     public class WASMContactDTOService(HttpClient http) : IContactDTOService
     {
+        #region CREATE METHOD
         public async Task<ContactDTO> CreateContactAsync(ContactDTO contact, string userId)
         {
             HttpResponseMessage response = await http.PostAsJsonAsync("api/contacts", contact);
@@ -15,27 +16,30 @@ namespace AddressBook2025.Client.Services
 
             return createdContact ?? throw new HttpRequestException("Invalid JSON response from server");
         }
+        #endregion
 
+        #region DELETE METHOD
         public async Task DeleteContactAsync(int id, string userId)
         {
             HttpResponseMessage response = await http.DeleteAsync($"api/contacts/{id}");
             response.EnsureSuccessStatusCode();
         }
+        #endregion
 
         public Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
         {
             throw new NotImplementedException();
         }
-
+        #region GET METHODS
         public async Task<ContactDTO?> GetContactByIdAsync(int id, string userId)
         {
             try
             {
-                var contact = await http.GetFromJsonAsync<ContactDTO?>($"api/contacts/{id}");
-                return contact ?? throw new HttpRequestException("Contact not found or invalid JSON response.");
+                return await http.GetFromJsonAsync<ContactDTO>($"api/contacts/{id}");
             }
             catch (Exception ex)
             {
+
                 Console.WriteLine(ex);
                 return null;
             }
@@ -49,10 +53,11 @@ namespace AddressBook2025.Client.Services
 
         public async Task<List<ContactDTO>> GetContactsByCategoryAsync(int categoryId, string userId)
         {
-           return await http.GetFromJsonAsync<List<ContactDTO>>($"api/Contacts?categoryID={categoryId}") ?? [];
+            return await http.GetFromJsonAsync<List<ContactDTO>>($"api/Contacts?categoryID={categoryId}") ?? [];
 
         }
 
+        #region SEARCH
         public async Task<List<ContactDTO>> SearchContactsAsync(string searchTerm, string userId)
         {
             try
@@ -66,10 +71,22 @@ namespace AddressBook2025.Client.Services
                 return [];
             }
         }
+        #endregion
+        #endregion
 
-        public Task UpdateContactAsync(ContactDTO contact, string userId)
+        #region UPDATE(EDIT) METHOD
+        public async Task UpdateContactAsync(ContactDTO contact, string userId)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await http.PutAsJsonAsync($"api/contacts/{contact.Id}", contact);
+            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"PUT /contacts returned {(int)response.StatusCode}: {body}");
+            }
         }
+        #endregion
     }
 }

@@ -1,9 +1,9 @@
 ﻿@*EditContact *@  
 @page "/contacts/edit/{contactId:int}"
 @attribute [Authorize]
-@rendermode InteractiveServer
+@rendermode InteractiveWebAssembly
 
-@inject IContactDTOService contactDTOService
+@inject IContactDTOService contactService
 @inject NavigationManager navManager
 
 <PageTitle>Black Book Pro | Edit @EditName</PageTitle>
@@ -33,7 +33,7 @@
     protected override async Task OnInitializedAsync()
     {
         userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-        contact = await contactDTOService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+        contact = await contactService.GetContactByIdAsync(ContactId, userInfo!.UserId);
         if (contact is null) navManager.NavigateTo("/contacts");
 
     }
@@ -43,7 +43,7 @@
         if (userInfo is not null)
         {
             //Call service to update
-            await contactDTOService.UpdateContactAsync(contact, userInfo.UserId);
+            await contactService.UpdateContactAsync(contact, userInfo.UserId);
             //nav back to contacts page;
             navManager.NavigateTo("/contacts");
         }

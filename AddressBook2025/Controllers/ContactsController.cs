@@ -15,6 +15,27 @@ namespace AddressBook2025.Controllers
         private string UserId => userManager.GetUserId(User)!;
 
         #region ENDPOINT METHODS MIRRORING SERVICE METHODS
+
+        #region HTTP POST METHOD
+        [HttpPost]
+        public async Task<ActionResult<ContactDTO>> CreateContact([FromBody] ContactDTO contact)
+        {
+            try
+            {
+                ContactDTO newContact = await contactService.CreateContactAsync(contact, UserId);
+                //whatever is created by a post should be returned via an action with a link to route to it
+                return CreatedAtAction(nameof(GetContactByIdAsync), new { id = newContact.Id }, newContact);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
+        #endregion
+
+        #region HTTP GET METHODS
         [HttpGet]
         public async Task<ActionResult<List<ContactDTO>>> GetContacts([FromQuery] int? categoryId)
         {
@@ -42,30 +63,14 @@ namespace AddressBook2025.Controllers
         {
             try
             {
-                ContactDTO contact = await contactService.GetContactByIdAsync(id,UserId);
-                return contact is null ? NotFound() : contact;
+                ContactDTO? contact = await contactService.GetContactByIdAsync(id, UserId);
+                return contact is null ? NotFound() : Ok(contact);
             }
             catch (Exception ex)
             {
 
                 Console.WriteLine(ex);
 
-                return Problem();
-            }
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<ContactDTO>> CreateContact([FromBody] ContactDTO contact)
-        {
-            try
-            {
-                ContactDTO newContact = await contactService.CreateContactAsync(contact, UserId);
-                    return CreatedAtAction(nameof(GetContactByIdAsync), new {id = newContact.Id},newContact);
-            }
-            catch (Exception ex)
-            {
-
-                Console.WriteLine(ex);
                 return Problem();
             }
         }
@@ -73,7 +78,7 @@ namespace AddressBook2025.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<List<ContactDTO>>> SearchContacts([FromQuery] string query)
         {
-            if(string.IsNullOrEmpty(query)) return BadRequest();
+            if (string.IsNullOrEmpty(query)) return BadRequest();
             try
             {
                 return await contactService.SearchContactsAsync(query, UserId);
@@ -82,9 +87,12 @@ namespace AddressBook2025.Controllers
             {
 
                 Console.WriteLine(ex);
-                    return Problem();
-            }  
+                return Problem();
+            }
         }
+        #endregion
+
+      #region HTTP DELETE METHOD
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteContact([FromRoute] int id)
@@ -101,6 +109,30 @@ namespace AddressBook2025.Controllers
                 return Problem();
             }
         }
+        #endregion
+
+        #region HTTP UPDATE(PUT) METHOD
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateContactAsync([FromRoute]int id, [FromBody] ContactDTO contact)
+        {
+            if(id != contact.Id) BadRequest();
+
+            try
+            {
+                await contactService.UpdateContactAsync(contact, UserId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+
+                return Problem();
+            }
+        }
+
+        #endregion
+
         #endregion
     }
 }
