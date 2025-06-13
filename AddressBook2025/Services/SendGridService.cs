@@ -20,7 +20,7 @@ namespace AddressBook2025.Services
         {
             SendGridClient client = new(_sendGridKey);
             EmailAddress from = new(_fromAddress, _fromName);
-            string plainTextContent = Regex.Replace(htmlMessage, "<[a-zA-Z].*?>", "").Trim();
+            string plainTextContent = Regex.Replace(htmlMessage, "<[a-zA-Z/].*?>", "").Trim();
             //works for singular email or multiples
             List<string> emails = [.. email.Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)];
             List<EmailAddress> addresses = [.. emails.Select(e => new EmailAddress(e))];
