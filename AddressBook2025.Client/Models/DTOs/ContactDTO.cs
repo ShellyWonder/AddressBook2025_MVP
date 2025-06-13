@@ -1,4 +1,5 @@
 ﻿using AddressBook2025.Client.Models.Enums;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -68,6 +69,8 @@ namespace AddressBook2025.Client.Models.DTOs
         }
 
         public string? ProfileImageUrl { get; set; }
+
+        [ValidateNever]
         public virtual ICollection<CategoryDTO> Categories { get; set; } = [];
     }
 }

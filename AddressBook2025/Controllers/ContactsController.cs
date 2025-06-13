@@ -115,7 +115,7 @@ namespace AddressBook2025.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateContactAsync([FromRoute]int id, [FromBody] ContactDTO contact)
         {
-            if(id != contact.Id) BadRequest();
+            if(id != contact.Id) return BadRequest("Route id and body id do not match");
 
             try
             {
