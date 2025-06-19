@@ -26,9 +26,20 @@ namespace AddressBook2025.Client.Services
         }
         #endregion
 
-        public Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
+        public async Task<bool> EmailContactAsync(int id, EmailData emailData, string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                HttpResponseMessage response = await http.PostAsJsonAsync($"api/contacts/{id}/email", emailData);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return false;
+                
+            }
         }
         #region GET METHODS
         public async Task<ContactDTO?> GetContactByIdAsync(int id, string userId)
