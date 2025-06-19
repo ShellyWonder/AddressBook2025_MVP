@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using AddressBook2025.Client.Models.DTOs;
+using AddressBook2025.Client.Models;
 
 namespace AddressBook2025.Controllers
 {
@@ -29,6 +30,21 @@ namespace AddressBook2025.Controllers
             catch (Exception ex)
             {
 
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
+
+        [HttpPost("{id:int}/email")]
+        public async Task<ActionResult> EmailContact([FromRoute]int id, [FromBody] EmailData emailData)
+        {
+            try
+            {
+                bool success = await contactService.EmailContactAsync(id, emailData, UserId);
+                return success ?Ok() : BadRequest();
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 return Problem();
             }

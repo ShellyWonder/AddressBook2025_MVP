@@ -1,7 +1,7 @@
 ﻿@* SearchComponent *@
 
-@if (contacts is not null)
-{
+
+
     <div class="mb-3 sideNav">
         <form>
             <div class="input-group mb-3">
@@ -23,7 +23,7 @@
             </InputSelect>
         </div>
     </div>
-}
+
 @code {
     [SupplyParameterFromQuery]
     private int? CategoryId { get; set; }
