@@ -29,7 +29,8 @@ namespace AddressBook2025.Controllers
                 return Problem();
             }
         }
-        [HttpGet("id")]
+
+        [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDTO>> GetCategoryAsync(int id)
         {
             try
@@ -81,6 +82,7 @@ namespace AddressBook2025.Controllers
                 return Problem();
             }
         }
+         
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteCategoryAsync([FromRoute] int id)
         {
@@ -88,6 +90,21 @@ namespace AddressBook2025.Controllers
             {
                 await categoryService.DeleteCategoryAsync(id, _userId);
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
+
+        [HttpPost("{id:int}/email")]
+        public async Task<ActionResult> EmailCategoryAsync([FromRoute] int id, [FromBody] EmailData emailData)
+        {
+            try
+            {
+                bool success = await categoryService.EmailCategoryAsync(id, emailData, _userId);
+                return success ? Ok() : BadRequest();
             }
             catch (Exception ex)
             {

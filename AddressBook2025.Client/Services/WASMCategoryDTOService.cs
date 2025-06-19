@@ -21,9 +21,19 @@ namespace AddressBook2025.Client.Services
             return await http.GetFromJsonAsync<List<CategoryDTO>>("api/categories") ?? [];
         }
 
-        public Task<CategoryDTO> GetCategoryByIdAsync(int id, string userId)
+        public async Task<CategoryDTO?> GetCategoryByIdAsync(int id, string userId)
+
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await http.GetFromJsonAsync<CategoryDTO?>($"api/categories/{id}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return null; // Return null if the category is not found or an error occurs
+            }
         }
 
         public async Task UpdateCategoryAsync(CategoryDTO category, string userId)
@@ -39,9 +49,20 @@ namespace AddressBook2025.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public Task<bool> EmailCategoryAsync(int id, EmailData emailData, string userId)
+        public async Task<bool> EmailCategoryAsync(int id, EmailData emailData, string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                HttpResponseMessage response = await http.PostAsJsonAsync($"api/categories/{id}/email", emailData);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                // Return false if an error occurs while sending the email
+                return false;
+            }
         }
     }
 }
