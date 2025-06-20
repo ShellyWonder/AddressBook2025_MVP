@@ -1,0 +1,12 @@
+﻿.register-card {
+    margin: auto;
+    max-width: 576px;
+    flex-grow: 1;
+    padding: 1rem;
+}
+.register-headerBG{
+    background-color: var(--sjw-theme-200);
+}
+#profilePicPreview{
+    height: 6rem;
+}

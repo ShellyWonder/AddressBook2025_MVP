@@ -16,6 +16,7 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ApplicationDbContext _context
+@inject IConfiguration Config
 
 @*Instructions for adding new data fields to the registration form 
     are available at RegisterInstruction.razor.cs
@@ -23,68 +24,95 @@
 
 <PageTitle>Register</PageTitle>
 
-<h1>Register</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" enctype="multipart/form-data">
-            <DataAnnotationsValidator />
-            <h2>Create a new account.</h2>
+<div class="d-flex h-100 align-items-center">
+    <div class="register-card glass-cf-style">
+        <div class="login-card shadow-lg">
+            <div class="card-header register-headerBG">
+                <div class="text-center p-2">
+                    <img src="/img/black_book_pro_logo_510.png" alt="Black Book Pro Logo" height="75" />
+                    <h1>Create your new account</h1>
+                </div>
+            </div>
             <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
-                <label for="firstName">First Name</label>
-                <ValidationMessage For="() => Input.FirstName" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.LastName" class="form-control" aria-required="true" placeholder="Last Name" />
-                <label for="lastName">Last Name</label>
-                <ValidationMessage For="() => Input.LastName" class="text-danger" />
-            </div>
+            <div class="card-body">
+                <StatusMessage Message="@(Message ?? errorMessage)" />
+                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" enctype="multipart/form-data">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
+                        <label for="firstName">First Name</label>
+                        <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+                        <label for="lastName">Last Name</label>
+                        <ValidationMessage For="() => Input.LastName" class="text-danger" />
+                    </div>
 
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="password">Password</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="confirm-password">Confirm Password</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-            <div class="mb-3 row">
-                <div class="col-lg-4">
-                    <img src="@ImageHelper.DefaultProfilePictureUrl" class="img-fluid" id="profilePicPreview" />
-                </div>
-                <div class="col-lg-8">
-                    <label class="form-label" for="Input.ProfilePicture">Profile Image</label>
-                    <input type="file" class="form-control"
-                           name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
-                           onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
-                </div>
-            </div>
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label for="email">Email</label>
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label for="password">Password</label>
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label for="confirm-password">Confirm Password</label>
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col-lg-4">
+                            <img src="@ImageHelper.DefaultProfilePictureUrl" class="img-fluid" id="profilePicPreview" />
+                        </div>
+                        <div class="col-lg-8">
+                            <label class="form-label" for="Input.ProfilePicture">Profile Image</label>
+                            <input type="file" class="form-control"
+                                   name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
+                                   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
+                        </div>
+                    </div>
 
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </EditForm>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+                </EditForm>
+                <div class="vstack gap-2">
+                    <div class="d-flex align-items-center gap-3 px-2">
+                        <div class="flex-grow-1">
+                            <hr />
+                        </div>
+                        <div>OR</div>
+                        <div class="flex-grow-1">
+                            <hr />
+                        </div>
+                    </div>
+                    <form class="text-center" method="post" @formname="demoLogin" onsubmit="@LoginDemoUser">
+                        <AntiforgeryToken />
+                        <button class=" w-100 btn btn-outline-primary">Log in as demo user</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
     </div>
-    <div class="col-md-6 col-md-offset-2">
+    @*  <div class="col-md-6 col-md-offset-2">
         <section>
             <h3>Use another service to register.</h3>
             <hr />
             <ExternalLoginPicker />
         </section>
-    </div>
+    </div> *@
 </div>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
+
+    private string? errorMessage;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
@@ -94,6 +122,29 @@
 
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
+    protected override void OnInitialized()
+    {
+        Input ??= new();
+    }
+
+    public async Task LoginDemoUser()
+    {
+        string? demoEmail = Config["DemoUserLogin"];
+
+        if (!string.IsNullOrEmpty(demoEmail))
+        {
+            ApplicationUser? demoUser = await SignInManager.UserManager.FindByEmailAsync(demoEmail);
+
+            if (demoUser is not null)
+            {
+                await SignInManager.SignInAsync(demoUser, false);
+                RedirectManager.RedirectTo(ReturnUrl);
+
+            }
+        }
+
+        errorMessage = "Error: Demo user login is not available.";
+    }
     public async Task RegisterUser(EditContext editContext)
     {
         var user = CreateUser();
@@ -162,6 +213,8 @@
                 $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
         }
     }
+
+
 
     private IUserEmailStore<ApplicationUser> GetEmailStore()
     {
