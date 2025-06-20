@@ -9,6 +9,7 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IConfiguration Config
 
 <PageTitle>Log in</PageTitle>
 
@@ -49,9 +50,23 @@
                         <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
                     </div>
                 </EditForm>
+                <div class="vstack gap-2">
+                    <div class="d-flex align-items-center gap-3 px-2">
+                        <div class="flex-grow-1">
+                            <hr />
+                        </div>
+                            <div>OR</div>
+                        <div class="flex-grow-1">
+                            <hr />
+                        </div>
+                    </div>
+                <form class="text-center" method="post" @formname="demoLogin" onsubmit="@LoginDemoUser">
+                    <AntiforgeryToken />
+                    <button class=" w-100 btn btn-outline-primary">Log in as demo user</button>
+                </form>
+                </div>
                 <hr />
-
-                <div class="row row-cols-1 row-cols-md-6 g-3">
+                <div class="row row-cols-1 row-cols-md-2 g-3">
                     <div class="dropdown col">
                         <button class="w-100 btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             Trouble signing in?
@@ -59,14 +74,16 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item" href="Account/ForgotPassword">Forgot your password?</a>
-                            </li>                  
-                            <li>                   
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="Account/ResendEmailConfirmation">Resend email confirmation</a>
                             </li>
                         </ul>
                     </div>
                     <div class="col">
-                        <a class="w-100 btn btn-light" href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="w-100 btn btn-light">
+                            Register as a new user
+                        </a>
                     </div>
 
                 </div>
@@ -75,7 +92,7 @@
         </section>
     </div>
 
-    
+
     @* <div class="col-md-6 col-md-offset-2">
         <section>
             <h3>Use another service to log in.</h3>
@@ -99,6 +116,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        //needed because add'l custom form added to login
+        Input ??= new();
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
             // Clear the existing external cookie to ensure a clean login process
@@ -131,6 +150,21 @@
         {
             errorMessage = "Error: Invalid login attempt.";
         }
+    }
+
+    public async Task LoginDemoUser()
+    {
+        string? demoEmail = Config["DemoUserLogin"];
+
+        if (!string.IsNullOrEmpty(demoEmail))
+        {
+            ApplicationUser? demoUser = await SignInManager.UserManager.FindByEmailAsync(demoEmail);
+
+            if (demoUser is not null) await SignInManager.SignInAsync(demoUser, false);
+
+        }
+
+        errorMessage = "Error: Demo user login is not available.";
     }
 
     private sealed class InputModel
