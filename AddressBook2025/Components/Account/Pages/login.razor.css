@@ -1,0 +1,10 @@
+﻿.login-card {
+    margin: auto;
+    max-width: 576px;
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+.headerBG {
+    background-color: var(--sjw-theme-200);
+}

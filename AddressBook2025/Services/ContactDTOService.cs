@@ -56,7 +56,7 @@ namespace AddressBook2025.Services
             await repository.DeleteContactAsync(id, userId);
         }
 
-        public async Task<ContactDTO> GetContactByIdAsync(int id, string userId)
+        public async Task<ContactDTO?> GetContactByIdAsync(int id, string userId)
         {
             Contact? contact = await repository.GetContactByIdAsync(id, userId);
             return contact!.ToDTO();
