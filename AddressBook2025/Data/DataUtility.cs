@@ -12,7 +12,7 @@ namespace AddressBook2025.Data
         public static string GetConnectionString(IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DbConnection");//Local connection string
-            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_PRIVATE_URL");//Railway connection string
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");//Railway connection string
             return string.IsNullOrEmpty(databaseUrl) ? connectionString! : BuildConnectionString(databaseUrl); 
         }
 
