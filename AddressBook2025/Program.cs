@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DbConnection")
+var connectionString = DataUtility.GetConnectionString(builder.Configuration)
                                      ?? throw new InvalidOperationException("Connection string 'DbConnection' not found.");
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
