@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AddressBook2025.Controllers
 {
-    [Route("uploads")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UploadsController(ApplicationDbContext _context) : ControllerBase
     {

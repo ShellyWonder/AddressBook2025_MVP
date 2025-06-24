@@ -14,6 +14,6 @@ namespace AddressBook2025.Models
 
         [Required]
         //calculated property
-        public string Url => $"/uploads/{Id}";
+        public string Url => $"api/uploads/{Id}";
     }
 }

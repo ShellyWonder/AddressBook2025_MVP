@@ -96,7 +96,7 @@ namespace AddressBook2025.Models
                 Email = this.Email,
                 PhoneNumber = this.PhoneNumber,
                 Created = this.Created.ToLocalTime(),
-                ProfileImageUrl = this.ImageId.HasValue ? $"/uploads/{ImageId}" : ImageHelper.DefaultProfilePictureUrl
+                ProfileImageUrl = this.ImageId.HasValue ? $"api/uploads/{ImageId}" : ImageHelper.DefaultProfilePictureUrl
             };
             foreach (Category category in Categories)
             {

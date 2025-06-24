@@ -78,7 +78,7 @@
         Input.LastName ??= lastName;
         Input.PhoneNumber ??= phoneNumber;
 
-        profilePictureUrl = user.ProfilePictureId.HasValue ? $"/uploads/{user.ProfilePictureId}" : ImageHelper.DefaultProfilePictureUrl;
+        profilePictureUrl = user.ProfilePictureId.HasValue ? $"api/uploads/{user.ProfilePictureId}" : ImageHelper.DefaultProfilePictureUrl;
     }
 
     private async Task OnValidSubmitAsync()
