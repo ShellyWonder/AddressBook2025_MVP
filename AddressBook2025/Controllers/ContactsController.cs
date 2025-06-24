@@ -10,7 +10,7 @@ namespace AddressBook2025.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ContactsController(IContactDTOService contactService, UserManager<Data.ApplicationUser> userManager) : ControllerBase
+    public class ContactsController(IContactDTOService contactService, ILogger<Controller> logger, UserManager<Data.ApplicationUser> userManager) : ControllerBase
     {
         //Since[Authorize], userId cannot be null ; always checked whenever userId is called
         private string UserId => userManager.GetUserId(User)!;
@@ -25,23 +25,29 @@ namespace AddressBook2025.Controllers
             {
                 ContactDTO newContact = await contactService.CreateContactAsync(contact, UserId);
                 //whatever is created by a post should be returned via an action with a link to route to it
-                return CreatedAtAction(nameof(GetContactByIdAsync), new { id = newContact.Id }, newContact);
+                return CreatedAtAction(
+                        actionName: nameof(GetContactByIdAsync),
+                        controllerName: "Contacts",
+                        routeValues: new { id = newContact.Id },
+                        value: newContact
+                );
+
             }
             catch (Exception ex)
             {
 
-                Console.WriteLine(ex);
-                return Problem();
+                logger.LogError(ex, "Exception thrown in CreateContact controller method");
+                return Problem("Server-side failure occurred.");
             }
         }
 
         [HttpPost("{id:int}/email")]
-        public async Task<ActionResult> EmailContact([FromRoute]int id, [FromBody] EmailData emailData)
+        public async Task<ActionResult> EmailContact([FromRoute] int id, [FromBody] EmailData emailData)
         {
             try
             {
                 bool success = await contactService.EmailContactAsync(id, emailData, UserId);
-                return success ?Ok() : BadRequest();
+                return success ? Ok() : BadRequest();
             }
             catch (Exception ex)
             {
@@ -108,7 +114,7 @@ namespace AddressBook2025.Controllers
         }
         #endregion
 
-      #region HTTP DELETE METHOD
+        #region HTTP DELETE METHOD
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteContact([FromRoute] int id)
@@ -129,9 +135,9 @@ namespace AddressBook2025.Controllers
 
         #region HTTP UPDATE(PUT) METHOD
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> UpdateContactAsync([FromRoute]int id, [FromBody] ContactDTO contact)
+        public async Task<ActionResult> UpdateContactAsync([FromRoute] int id, [FromBody] ContactDTO contact)
         {
-            if(id != contact.Id) return BadRequest("Route id and body id do not match");
+            if (id != contact.Id) return BadRequest("Route id and body id do not match");
 
             try
             {

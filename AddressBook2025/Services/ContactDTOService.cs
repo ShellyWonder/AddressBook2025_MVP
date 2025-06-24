@@ -4,51 +4,74 @@ using AddressBook2025.Helpers;
 using AddressBook2025.Models;
 using AddressBook2025.Services.Interfaces;
 using AddressBook2025.Client.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+
 
 namespace AddressBook2025.Services
 {
-    public class ContactDTOService(IContactRepository repository, IEmailSender emailSender) : IContactDTOService
+    public class ContactDTOService(IContactRepository repository, ILogger<ContactDTOService> logger, IEmailSender emailSender) : IContactDTOService
     {
         public async Task<ContactDTO> CreateContactAsync(ContactDTO dto, string userId)
         {
-            //transform DTO to entity
-            Contact newContact = new()
+            Console.WriteLine("Starting CreateContactAsync...");
+            try
             {
-                AppUserId = userId,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                BirthDate = dto.BirthDate,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                Address1 = dto.Address1,
-                Address2 = dto.Address2,
-                City = dto.City,
-                State = dto.State,
-                ZipCode = dto.ZipCode,
-                Created = DateTimeOffset.UtcNow
+                logger.LogInformation("Received contact DTO for creation: {@Dto}", dto); 
 
-            };
-            //save image--convert the url to the imageUpload type
-            if (dto.ProfileImageUrl?.StartsWith("data:") == true)
-            {
-                newContact.Image = ImageHelper.GetImageUploadFromURL(dto.ProfileImageUrl);
+                //transform DTO to entity
+                Contact newContact = new()
+                {
+                    AppUserId = userId,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    BirthDate = dto.BirthDate,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    Address1 = dto.Address1,
+                    Address2 = dto.Address2,
+                    City = dto.City,
+                    State = dto.State,
+                    ZipCode = dto.ZipCode,
+                    Created = DateTimeOffset.UtcNow
+
+                };
+                //save image--convert the url to the imageUpload type
+                if (!string.IsNullOrWhiteSpace(dto.ProfileImageUrl) &&
+                      dto.ProfileImageUrl.StartsWith("data:"))
+                {
+                    Console.WriteLine("Converting base64 image...");
+                    newContact.Image = ImageHelper.GetImageUploadFromURL(dto.ProfileImageUrl);
+                    Console.WriteLine($"Image parsed. Size: {newContact.Image.Data?.Length} bytes");
+                }
+
+                //save new object
+                Console.WriteLine("Saving contact to DB...");
+                newContact = await repository.CreateContactAsync(newContact);
+                Console.WriteLine($"Contact saved: ID = {newContact.Id}");
+
+                //add (update new contact)categories to the contact
+                List<int> categoryIds = dto.Categories?.Select(c => c.Id).ToList() ?? [];
+                await repository.AddCategoriesToContactAsync(newContact.Id, userId, categoryIds);
+
+                Console.WriteLine("Categories added.");
+
+                //Since the new contact has been updated with categories, requery the database 
+                // read method
+                newContact = await repository.GetContactByIdAsync(newContact.Id, userId)
+                                         ?? throw new Exception("Contact not found after creation.");
+                Console.WriteLine("Final contact loaded and will be mapped to DTO.");                
+                
+                //transform entity to DTO
+                return newContact.ToDTO();
             }
+            catch (Exception ex)
+            {
 
-            //save new object
-            newContact = await repository.CreateContactAsync(newContact);
+                Console.WriteLine("Unhandled exception in CreateContactAsync:");
+                logger.LogError(ex, "Error occurred while creating contact.");
+                throw new Exception("An error occurred while creating the contact Server-side failure occurred.", ex);
 
-            //add (update new contact)categories to the contact
-            List<int> categoryIds = dto.Categories?.Select(c => c.Id).ToList() ?? [];
-            await repository.AddCategoriesToContactAsync(newContact.Id, userId, categoryIds);
-
-            //Since the new contact has been updated with categories, requery the database 
-            // read method
-            newContact = await repository.GetContactByIdAsync(newContact.Id, userId)
-                                          ?? throw new Exception("Contact not found after creation.");
-            //transform entity to DTO
-            return newContact.ToDTO();
+            }
         }
 
         public async Task DeleteContactAsync(int id, string userId)

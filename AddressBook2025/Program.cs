@@ -25,6 +25,10 @@ builder.Services.AddHttpClient();
 //to cache images in the browser
 builder.Services.AddOutputCache();
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole(); // enables Console output in terminal
+
+
 
 builder.Services.AddAuthentication(options =>
     {
