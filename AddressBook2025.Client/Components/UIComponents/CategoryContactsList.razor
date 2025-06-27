@@ -1,0 +1,34 @@
+﻿@* CategoryContactsList.razor *@
+
+@if (Contacts is null || Contacts.Count == 0)
+{
+    <p class="text-muted">No contacts in this category.</p>
+}
+else
+{
+    <ul class="list-group list-group-flush">
+        @foreach (var contact in Contacts)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>@contact.FullName</span>
+                <div>
+                    <a class="btn btn-sm btn-outline-primary me-1" href="/contacts/details/@contact.Id">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a class="btn btn-sm btn-outline-secondary me-1" href="/contacts/edit/@contact.Id">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a class="btn btn-sm btn-outline-danger" href="/contacts/delete/@contact.Id">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public ICollection<ContactDTO> Contacts { get; set; } = Array.Empty<ContactDTO>();
+
+}

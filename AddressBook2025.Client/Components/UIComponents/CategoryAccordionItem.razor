@@ -112,27 +112,7 @@
         </div>
         <div id="collapse-@Category.Id" class="accordion-collapse collapse" data-bs-parent="#@ParentId">
             <div class="accordion-body">
-                <ul class="list-group">
-                    @if (Category.Contacts.Count > 0)
-                    {
-                        @foreach (ContactDTO contact in Category.Contacts)
-                        {
-                            <li class="list-group-item d-flex gap-3 align-items-center">
-                                <a href="/contacts/edit/@contact.Id" class="text-decoration-none  text-dark">
-                                    <img class="contact-preview-img" src="@contact.ProfileImageUrl" alt="image for @contact.FullName" />
-                                    <span>@contact.FullName</span>
-                                </a>
-                            </li>
-                        }
-                    }
-                    else
-                    {
-                        <li class="list-group-item text-center lead text-secondary">
-                            No contacts in this category :(
-                        </li>
-
-                    }
-                </ul>
+                <CategoryContactsList Contacts="Category.Contacts" />
             </div>
         </div>
     </div>
