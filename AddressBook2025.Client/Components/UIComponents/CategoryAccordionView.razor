@@ -1,0 +1,45 @@
+﻿@* CategoryAccordionView.razor *@
+
+<div class="d-lg-flex gap-3 p-3">
+    <div class="flex-grow-1 hstack gap-2 align-items-center"
+         role="button"
+         data-bs-toggle="collapse"
+         data-bs-target="#collapse-@Category.Id"
+         aria-expanded="false">
+        <span class="badge bg-secondary rounded-pill sm">
+            @Category.Contacts.Count
+        </span>
+        <span>
+            @Category.Name
+        </span>
+    </div>
+    <div>
+        <div class="mt-2 mt-lg-0">
+            <span class="text-nowrap">
+                <a role="button" class="me-1" @onclick="OnEdit">
+                    <i class="bi bi-pencil-fill" aria-label="Edit Category"></i>
+                </a>
+                <a role="button" class="me-1" @onclick="OnDelete">
+                    <i class="bi bi-trash-fill text-danger" aria-label="Delete Category"></i>
+                </a>
+                <a role="button" href="/contacts?categoryId=@Category.Id" class="me-1">
+                    <i class="bi bi-eye-fill" aria-label="View Category Members"></i>
+                </a>
+                <a role="button" href="@($"/categories/email/{Category.Id}")" class="me-1">
+                    <i class="bi bi-envelope-fill" aria-label="Email Category Members"></i>
+                </a>
+            </span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CategoryDTO Category { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback OnEdit { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnDelete { get; set; }
+}
