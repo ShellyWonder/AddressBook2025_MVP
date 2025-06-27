@@ -8,3 +8,7 @@
 .headerBG {
     background-color: var(--sjw-theme-200);
 }
+
+a:visited, a:hover, a:active, a:focus {
+    color: var(--contrast-gs-color);
+}
