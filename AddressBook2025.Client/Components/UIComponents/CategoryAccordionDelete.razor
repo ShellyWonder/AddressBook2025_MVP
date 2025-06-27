@@ -1,0 +1,28 @@
+﻿@* CategoryAccordionDelete.razor *@
+
+<div class="d-flex justify-content-between align-items-center p-3">
+    <div>
+        <strong>Are you sure you want to delete the category "@Category.Name"?</strong>
+        <br />
+        <small class="text-muted">This action cannot be undone.</small>
+    </div>
+    <div>
+        <button class="btn btn-sm btn-danger me-2" @onclick="OnConfirmDelete">
+            <i class="bi bi-trash-fill"></i> Delete
+        </button>
+        <button class="btn btn-sm btn-secondary" @onclick="OnCancel">
+            <i class="bi bi-x-lg"></i> Cancel
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CategoryDTO Category { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public EventCallback OnConfirmDelete { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnCancel { get; set; }
+}
