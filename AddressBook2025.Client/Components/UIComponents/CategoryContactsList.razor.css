@@ -1,0 +1,7 @@
+﻿/*CategoryContactsList.razor.css*/
+
+.contact-preview-img {
+    height: 1.5rem;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+}
