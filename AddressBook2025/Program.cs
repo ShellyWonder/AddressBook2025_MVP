@@ -1,13 +1,14 @@
+using AddressBook2025.Client.Services;
+using AddressBook2025.Client.Services.Interfaces;
 using AddressBook2025.Components;
 using AddressBook2025.Components.Account;
 using AddressBook2025.Data;
 using AddressBook2025.Services;
 using AddressBook2025.Services.Interfaces;
-using AddressBook2025.Client.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddSingleton<ToastService>();
+
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 //to cache images in the browser

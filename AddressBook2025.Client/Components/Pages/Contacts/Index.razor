@@ -6,6 +6,8 @@
 @inject ICategoryDTOService categoryService
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
+@inject IJSRuntime JS
+@inject AddressBook2025.Client.Services.ToastService ToastService
 
 <PageTitle>Black Book Pro | Contacts</PageTitle>
 
@@ -54,12 +56,8 @@
                 </div>
                 <!-- #region TOAST MESSAGE -->
                 <div class="mt-3">
+                        <ToastMessage />
 
-                    @if (!string.IsNullOrEmpty(toastMessage))
-                    {
-                        <ToastMessage @key="messageID" Message="@toastMessage" Color="@messageColor" />
-
-                    }
                 </div>
                 <!-- #endregion -->
             </div>
@@ -190,6 +188,20 @@
             ShowToastMessage("Oops! Something went wrong. Please refresh the page or try again later.");
         }
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var showToast = await JS.InvokeAsync<string>("sessionStorage.getItem", "showAddToast");
+            if (showToast == "true")
+            {
+                ToastService.Show("Browse contacts and hit the <i class='bi bi-pencil-fill'></i> to add a contact to a category.", "info");
+                await JS.InvokeVoidAsync("sessionStorage.removeItem", "showAddToast");
+            }
+        }
+    }
+
     private async Task DeleteContact(int Id)
     {
         try

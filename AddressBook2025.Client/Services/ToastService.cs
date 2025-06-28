@@ -2,11 +2,11 @@
 {
     public class ToastService
     {
-        public event Action<string>? OnShow;
+        public event Action<string, string>? OnShow;
 
-        public void Show(string message)
+        public void Show(string message, string color = "info")
         {
-            OnShow?.Invoke(message);
+            OnShow?.Invoke(message, color);
         }
     }
 }

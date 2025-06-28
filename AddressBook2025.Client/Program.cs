@@ -12,6 +12,6 @@ builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticat
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<ICategoryDTOService, WASMCategoryDTOService>();
 builder.Services.AddScoped<IContactDTOService, WASMContactDTOService>();
-builder.Services.AddScoped<ToastService>();
+builder.Services.AddSingleton<ToastService>();
 
 await builder.Build().RunAsync();

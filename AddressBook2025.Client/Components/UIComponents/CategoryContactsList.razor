@@ -1,12 +1,12 @@
 ﻿@* CategoryContactsList.razor *@
-
+@inject IJSRuntime JS
 <ul class="list-group">
     @if (Category?.Contacts.Count > 0)
     {
         @foreach (ContactDTO contact in Category.Contacts)
         {
             <li class="list-group-item d-flex gap-3 align-items-center">
-                <a href="/contacts/edit/@contact.Id" class="text-decoration-none  text-dark">
+                <a href="/contacts/edit/@contact.Id" class="text-decoration-none text-dark">
                     <img class="contact-preview-img" src="@contact.ProfileImageUrl" alt="image for @contact.FullName" />
                     <span>@contact.FullName</span>
                 </a>
@@ -15,8 +15,17 @@
     }
     else
     {
-        <li class="list-group-item text-center lead text-secondary">
-            No contacts in this category :(
+        <li class="list-group-item lead text-secondary">
+                <div class="d-flex justify-content-center">
+            <div class="hstack gap-2">
+                    <span> No contacts in this category <i class="bi bi-emoji-frown"></i></span>
+                    <NavLink class="btn btn-primary rounded pill"
+                             href="/contacts"
+                             @onclick="SetAddContactFlag">
+                        Add Contacts
+                    </NavLink>
+                </div>
+            </div>
         </li>
 
     }
@@ -26,8 +35,14 @@
 @code {
     [Parameter, EditorRequired]
     public ICollection<ContactDTO> Contacts { get; set; } = Array.Empty<ContactDTO>();
-    
+
     [Parameter, EditorRequired]
     public CategoryDTO? Category { get; set; }
 
+    private async Task SetAddContactFlag()
+    {
+        await JS.InvokeVoidAsync("sessionStorage.setItem", "showAddToast", "true");
+    }
+
+   
 }
