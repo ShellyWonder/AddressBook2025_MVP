@@ -21,6 +21,20 @@ h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
 }
 
+.editIcons {
+    font-size: 1.5rem;
+    opacity: .9;
+    color: #002a4e;
+    transition: color 0.25s;
+}
+
+    .editIcons:hover {
+        color: #0869b8;
+        font-weight: bold;
+        opacity: 1;
+        cursor: pointer;
+    }
+
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;

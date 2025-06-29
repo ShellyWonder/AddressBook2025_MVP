@@ -1,0 +1,50 @@
+﻿@* ContactActionBar *@
+
+<div class="fs-4">
+    <a class="me-3 editIcons" href="/contacts/edit/@ContactId">
+        <i class="bi bi-pencil-fill text-success" title="Edit Contact" aria-label="Edit Contact"></i>
+    </a>
+
+    <a class="me-3 editIcons" href="/contacts/email/@ContactId">
+        <i class="bi bi-envelope-fill text-warning" title="Email Contact" aria-label="Email Contact"></i>
+    </a>
+
+    @if (DisplayVariant == "Category")
+    {
+        <a class="me-3 editIcons" href="/contacts/edit/@ContactId">
+            <i class="bi bi-trash-fill text-danger" title="Edit contact to remove from category" aria-label="Edit contact to remove from category"></i>
+        </a>
+    }
+    else
+    {
+        <a class="me-3 editIcons" role="button" @onclick="OnDelete">
+            <i class="bi bi-trash-fill text-danger" title="Delete Contact" aria-label="Delete Contact"></i>
+        </a>
+    }
+
+    @if (!HideViewIcon)
+    {
+        <a class="me-3 editIcons" href="/contacts/edit/@ContactId">
+            <i class="bi bi-eye-fill text-info" title="View Contact" aria-label="View Contact"></i>
+        </a>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int ContactId { get; set; } = 0;
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    [Parameter]
+    public bool HideViewIcon { get; set; } = false;
+
+    /// <summary>
+    /// Display variant toggles route for the delete icon.
+    /// Values: "default", "Category"
+    /// - Category: routes to contact edit instead of triggering deletion.
+    /// </summary>
+    [Parameter]
+    public string DisplayVariant { get; set; } = "default";
+}

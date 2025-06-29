@@ -1,15 +1,20 @@
 ﻿@* CategoryContactsList.razor *@
+
+@using AddressBook2025.Client.Components.UIComponents.Icons
 @inject IJSRuntime JS
+
+
 <ul class="list-group">
     @if (Category?.Contacts.Count > 0)
     {
         @foreach (ContactDTO contact in Category.Contacts)
         {
-            <li class="list-group-item d-flex gap-3 align-items-center">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="/contacts/edit/@contact.Id" class="text-decoration-none text-dark">
                     <img class="contact-preview-img" src="@contact.ProfileImageUrl" alt="image for @contact.FullName" />
                     <span>@contact.FullName</span>
                 </a>
+                <ContactActionBar ContactId="@contact.Id" DisplayVariant="Category"/> 
             </li>
         }
     }
