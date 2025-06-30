@@ -11,19 +11,24 @@
         <a role="button" class="editIcons me-3" @onclick="OnDelete">
             <i class="bi bi-trash-fill text-danger" title="Delete Category" aria-label="Delete Category"></i>
         </a>
-        <a role="button" class="editIcons me-3" @onclick="ExpandIfCollapsed">
-            <i class="bi bi-eye-fill text-info" title="View Category Members" aria-label="Toggle Category Contacts"></i>
+        <a role="button" class="editIcons me-3" @onclick="Toggle" aria-expanded="@IsExpanded" aria-controls="collapse-@CategoryId">
+            <i class="bi @(IsExpanded ? "bi-chevron-up" : "bi-chevron-down") text-info" title="Toggle Category Contacts" aria-label="Toggle Category Contacts"></i>
         </a>
     </span>
 </div>
+
+
 
 @code {
     [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnEdit { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
     [Parameter] public EventCallback OnToggle { get; set; }
+    [Parameter] public bool IsExpanded { get; set; } = false;
 
-    private async Task ExpandIfCollapsed()
+    [Parameter] public CategoryDTO Category { get; set; } = default!;
+
+    private async Task Toggle()
     {
         if (OnToggle.HasDelegate)
         {
@@ -31,4 +36,3 @@
         }
     }
 }
-

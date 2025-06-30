@@ -1,5 +1,7 @@
 ﻿@* CategoryAccordionView.razor *@
 
+@using AddressBook2025.Client.Components.UIComponents.Icons
+    
 <div class="d-lg-flex gap-3 p-3">
     <div class="flex-grow-1 hstack gap-2 align-items-center"
          role="button"
@@ -14,22 +16,12 @@
         </span>
     </div>
     <div>
-        <div class="mt-2 mt-lg-0">
-            <span class="text-nowrap">
-                <a role="button" class="me-1" @onclick="OnEdit">
-                    <i class="bi bi-pencil-fill" aria-label="Edit Category"></i>
-                </a>
-                <a role="button" class="me-1" @onclick="OnDelete">
-                    <i class="bi bi-trash-fill text-danger" aria-label="Delete Category"></i>
-                </a>
-                <a role="button" href="/contacts?categoryId=@Category.Id" class="me-1">
-                    <i class="bi bi-eye-fill" aria-label="View Category Members"></i>
-                </a>
-                <a role="button" href="@($"/categories/email/{Category.Id}")" class="me-1">
-                    <i class="bi bi-envelope-fill" aria-label="Email Category Members"></i>
-                </a>
-            </span>
-        </div>
+        <CategoryActionBar CategoryId="@Category.Id"
+                           OnEdit="OnEdit"
+                           OnDelete="OnDelete"
+                           OnToggle="@OnToggle"
+                           IsExpanded ="isExpanded"/>
+
     </div>
 </div>
 
@@ -42,4 +34,14 @@
 
     [Parameter, EditorRequired]
     public EventCallback OnDelete { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnToggle { get; set; }
+
+    [Parameter, EditorRequired] 
+    public bool IsExpanded { get; set; } = false;
+
+    private bool isExpanded = false;
+
+   
 }

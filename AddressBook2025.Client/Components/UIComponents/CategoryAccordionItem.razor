@@ -9,28 +9,32 @@
                 case Status.Viewing:
                     <CategoryAccordionView Category="Category"
                                            OnEdit="() => status = Status.Editing"
-                                           OnDelete="() => status = Status.Deleting" />
-                    break;
+                                           OnDelete="() => status = Status.Deleting"
+                                           OnToggle="ToggleExpanded"
+                                           IsExpanded="isExpanded" />
+                break;
 
                 case Status.Editing:
                     <CategoryAccordionEdit Category="Category"
                                            OnSubmit="HandleEditAsync"
                                            OnCancel="() => status = Status.Viewing" />
-                    break;
+                break;
+
                 case Status.Deleting:
                     <CategoryAccordionDelete 
                         Category="Category" 
                         OnConfirmDelete="HandleDeleteAsync" 
                         OnCancel="() => status = Status.Viewing" />
-                    break;
+                break;
             }
 
         </div>
-        <div id="collapse-@Category.Id" class="accordion-collapse collapse" data-bs-parent="#@ParentId">
+        <div class="accordion-collapse collapse @(isExpanded ? "show" : "")" id="collapse-@Category.Id">
             <div class="accordion-body">
                 <CategoryContactsList Contacts="Category.Contacts" Category="Category" />
             </div>
         </div>
+
     </div>
 }
 
@@ -59,6 +63,9 @@
 
     private string WarningMessage => $"Are you sure you want to delete {Category!.Name}?";
 
+    private bool isExpanded = false;
+
+    private string ExpansionStatus => isExpanded ? "show" : "";
 
     protected override void OnInitialized()
     {
@@ -84,5 +91,11 @@
         if (Category is not null && OriginalName != string.Empty) Category.Name = OriginalName;
 
         status = Status.Viewing;
+    }
+
+
+    private void ToggleExpanded()
+    {
+        isExpanded = !isExpanded;
     }
 }
