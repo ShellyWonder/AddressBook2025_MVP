@@ -4,6 +4,7 @@
 @rendermode InteractiveAuto
 
 @inject ICategoryDTOService CategoryService
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Address Book | Categories</PageTitle>
 
@@ -31,11 +32,7 @@
 
 
 @code {
-    //passes in logged in userId
-    [CascadingParameter] 
-    private Task<AuthenticationState>? AuthStateTask { get; set; }
-
-    private UserInfo? userInfo;
+    
 
     //model
     private CategoryDTO newCategory = new CategoryDTO();
@@ -43,28 +40,28 @@
     private IEnumerable<CategoryDTO> categories = [];
 
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedWithAuthAsync()
     {
-        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+       
+        categories = await CategoryService.GetCategoriesAsync(UserInfo!.UserId);
     }
     private async Task HandleNewCategory()
     {
-        await CategoryService.CreateCategoryAsync(newCategory, userInfo!.UserId);
+        await CategoryService.CreateCategoryAsync(newCategory, UserInfo!.UserId);
         newCategory = new CategoryDTO(); // Reset the form after submission
-        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+        categories = await CategoryService.GetCategoriesAsync(UserInfo!.UserId);
     }
 
     private async Task UpdateCategory(CategoryDTO category)
     {
-        await CategoryService.UpdateCategoryAsync(category, userInfo!.UserId);
+        await CategoryService.UpdateCategoryAsync(category, UserInfo!.UserId);
        
     }
 
     public async Task DeleteCategory(int categoryId)
     {   //removes the category from the list
-        await CategoryService.DeleteCategoryAsync(categoryId, userInfo!.UserId);
+        await CategoryService.DeleteCategoryAsync(categoryId, UserInfo!.UserId);
         // Refresh the categories list after deletion
-        categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+        categories = await CategoryService.GetCategoriesAsync(UserInfo!.UserId);
     }
 }

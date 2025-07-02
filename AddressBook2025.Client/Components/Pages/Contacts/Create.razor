@@ -3,8 +3,11 @@
 @attribute [Authorize]
 @rendermode InteractiveAuto
 
+@inject ILogger<IContactDTOService> logger
 @inject IContactDTOService contactService
 @inject NavigationManager NavManager
+
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Address Book | Create Contact</PageTitle>
 
@@ -16,18 +19,27 @@
 
 
 @code {
-    [CascadingParameter]
-    public Task<AuthenticationState>? AuthStateTask { get; set; }
-
+    
     private async Task HandleSubmit(ContactDTO contact)
     {
-        UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-
-        if (userInfo is not null)
+        try
         {
-            await contactService.CreateContactAsync(contact, userInfo.UserId);
-            NavManager.NavigateTo("/contacts");
+
+            if (UserInfo is not null)
+            {
+                await contactService.CreateContactAsync(contact, UserInfo.UserId);
+                NavManager.NavigateTo("/contacts");
+            }
+
         }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine("Error in HandleSubmit:");
+            Console.WriteLine(ex.ToString());
+            logger.LogError(ex, "Failed to create contact.");
+        }
+        
     }
 
 }

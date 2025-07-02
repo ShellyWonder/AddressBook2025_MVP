@@ -5,6 +5,7 @@
 
 @inject ICategoryDTOService CategoryService
 
+@inherits AuthenticatedComponentBase
 
 @if (Contact is not null)
 {
@@ -111,10 +112,6 @@
     [Parameter, EditorRequired]
     public EventCallback<ContactDTO> OnSubmit { get; set; }
 
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthStateTask { get; set; }
-
-    private UserInfo? userInfo;
     private IEnumerable<CategoryDTO> categories = [];
     private int[] selectedCategoryIds = [];
     private string imageErrorMessage = string.Empty;
@@ -123,15 +120,14 @@
                                             : Contact.ProfileImageUrl;
     private IBrowserFile? selectedImage;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedWithAuthAsync()
     {
         Contact ??= new ContactDTO();
         selectedCategoryIds = [.. Contact.Categories.Select(c => c.Id)];
 
         try
         {
-            userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-            categories = await CategoryService.GetCategoriesAsync(userInfo!.UserId);
+            categories = await CategoryService.GetCategoriesAsync(UserInfo!.UserId);
         }
         catch (Exception ex)
         {

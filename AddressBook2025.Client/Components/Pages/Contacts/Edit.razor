@@ -3,6 +3,8 @@
 @attribute [Authorize]
 @rendermode InteractiveAuto
 
+@inherits AuthenticatedComponentBase
+
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
 
@@ -11,39 +13,35 @@
 @if (contact is not null)
 {
     <div class="container">
+        <h2 class="mt-3">Edit @EditName</h2>
             <div class="p-3 my-5 glass-cf-style">
             <ContactForm Contact="contact" OnSubmit="HandleSubmit" />
         </div>
     </div>
 }
 
-
 @code {
-
-    [CascadingParameter]
-    public Task<AuthenticationState>? AuthStateTask { get; set; }
 
     [Parameter]
     public int ContactId { get; set; }
 
-    public UserInfo? userInfo;
-    public ContactDTO? contact;
+   public ContactDTO? contact;
     private string EditName => contact?.FullName ?? "Loading . . .";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedWithAuthAsync()
     {
-        userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-        contact = await contactService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+       
+        contact = await contactService.GetContactByIdAsync(ContactId, UserInfo!.UserId);
         if (contact is null) navManager.NavigateTo("/contacts");
 
     }
 
     private async Task HandleSubmit(ContactDTO contact)
     {
-        if (userInfo is not null)
+        if (UserInfo is not null)
         {
             //Call service to update
-            await contactService.UpdateContactAsync(contact, userInfo.UserId);
+            await contactService.UpdateContactAsync(contact, UserInfo.UserId);
             //nav back to contacts page;
             navManager.NavigateTo("/contacts");
         }

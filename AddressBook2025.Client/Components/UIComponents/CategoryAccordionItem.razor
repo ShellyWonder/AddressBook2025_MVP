@@ -29,7 +29,7 @@
             }
 
         </div>
-        <div class="accordion-collapse collapse @(isExpanded ? "show" : "")" id="collapse-@Category.Id">
+        <div class="accordion-collapse collapse @ExpansionStatus" id="#collapse-@Category.Id">
             <div class="accordion-body">
                 <CategoryContactsList Contacts="Category.Contacts" Category="Category" />
             </div>

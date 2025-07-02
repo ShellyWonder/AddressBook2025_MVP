@@ -6,6 +6,7 @@
 @inject ICategoryDTOService categoryDTOService
 @inject NavigationManager navManager
 
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Black Book Pro | Email Category</PageTitle>
 
@@ -26,20 +27,16 @@
     [Parameter]
     public int CategoryId { get; set; }
 
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthStateTask { get; set; }
-
     private CategoryDTO? category;
-    private UserInfo? userInfo;
     private EmailData? emailData;
 
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedWithAuthAsync()
     {
         try
         {
-            userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-            category = await categoryDTOService.GetCategoryByIdAsync(CategoryId, userInfo!.UserId);
+           
+            category = await categoryDTOService.GetCategoryByIdAsync(CategoryId, UserInfo!.UserId);
         }
         catch (Exception ex)
         {
@@ -69,7 +66,7 @@
         try
         {
             //call email service
-            bool success = await categoryDTOService.EmailCategoryAsync(CategoryId, formEmailData, userInfo!.UserId);
+            bool success = await categoryDTOService.EmailCategoryAsync(CategoryId, formEmailData, UserInfo!.UserId);
             if (success) message = $"Email successfully sent to contacts in your {category!.Name}.";
 
         }

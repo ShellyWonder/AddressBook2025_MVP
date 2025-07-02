@@ -6,6 +6,7 @@
 @inject NavigationManager navManager
 @inject IContactDTOService contactService
 
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Black Book Pro | Email Contact</PageTitle>
 @if (emailData is not null)
@@ -23,22 +24,19 @@
 @code {
     [Parameter]
     public int ContactId { get; set; }
-
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthStateTask { get; set; }
-
+    
     private ContactDTO? contact;
-    private UserInfo? userInfo;
+
 
     //model
     private EmailData? emailData;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedWithAuthAsync()
     {
         try
         {
-            userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask!);
-            contact = await contactService.GetContactByIdAsync(ContactId, userInfo!.UserId);
+ 
+            contact = await contactService.GetContactByIdAsync(ContactId, UserInfo!.UserId);
         }
         catch (Exception ex)
         {
@@ -68,7 +66,7 @@
         //call email service
         try
         {
-            bool success = await contactService.EmailContactAsync(ContactId, formEmailData, userInfo!.UserId);
+            bool success = await contactService.EmailContactAsync(ContactId, formEmailData, UserInfo!.UserId);
 
             if (success) message = $"Email successfully sent to {contact!.FullName}.";
         }
