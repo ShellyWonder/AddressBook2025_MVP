@@ -1,0 +1,79 @@
+﻿@*ContactDetails *@  
+@page "/contacts/contactdetails/{contactId:int}"
+@inject IContactDTOService ContactService
+
+
+@inherits AuthenticatedComponentBase
+<PageTitle>Black Book Pro | @Contact?.FullName</PageTitle>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h1>@Contact?.FullName</h1>
+        </div>
+        @if (ContactLoaded && Contact is not null)
+        {
+            <div class="row">
+                <div class="col-12">
+                    <ContactCard Contact="@Contact" OnDelete="DeleteContact" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">Contact not found.</div>
+        }
+
+    </div>
+</div>
+@code {
+
+    [Parameter]
+    public int ContactId { get; set; }
+    private ContactDTO? Contact { get; set; }
+    private bool ContactLoaded = true;
+    private string? messageColor;
+    private string? toastMessage;
+    private Guid messageID = Guid.NewGuid();
+
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        Contact = await ContactService.GetContactByIdAsync(ContactId, UserInfo!.UserId);
+        ContactLoaded = (Contact != null);
+        
+
+    }
+
+      private async Task DeleteContact(int Id)
+    {
+        try
+        {
+            await ContactService.DeleteContactAsync(Id, UserInfo!.UserId);
+
+            ShowToastMessage("Success! Contact deleted");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            ShowToastMessage("Oops! Something went wrong. Try again later.");
+        }
+    }
+
+
+
+    private void ShowToastMessage(string message)
+    {
+        toastMessage = message;
+        if (message.Contains("wrong"))
+        {
+            messageColor = "danger";
+        }
+        else
+        {
+            messageColor = "success";
+        }
+        messageID = Guid.NewGuid();
+    }
+
+
+}
