@@ -1,17 +1,18 @@
 ﻿@* Contact Index *@  
 @page "/contacts"
-@using AddressBook2025.Client.Components.BaseComponents
 @attribute [Authorize]
 @rendermode InteractiveAuto
 
-@inherits AuthenticatedComponentBase
+@using AddressBook2025.Client.Components.BaseComponents
+@using AddressBook2025.Client.Services
 
 @inject ICategoryDTOService categoryService
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
 @inject IJSRuntime JS
-@inject AddressBook2025.Client.Services.ToastService ToastService
+@inject ToastService ToastService
 
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Black Book Pro | Contacts</PageTitle>
 

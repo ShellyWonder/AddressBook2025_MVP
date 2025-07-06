@@ -3,10 +3,10 @@
 @attribute [Authorize]
 @rendermode InteractiveAuto
 
-@inherits AuthenticatedComponentBase
-
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
+
+@inherits AuthenticatedComponentBase
 
 <PageTitle>Black Book Pro | Edit @EditName</PageTitle>
 
@@ -14,7 +14,7 @@
 {
     <div class="container">
         <h2 class="mt-3">Edit @EditName</h2>
-            <div class="p-3 my-5 glass-cf-style">
+            <div class="p-3 my-3 glass-cf-style">
             <ContactForm Contact="contact" OnSubmit="HandleSubmit" />
         </div>
     </div>
