@@ -56,9 +56,20 @@
         Console.WriteLine($"[ToastMessage] ShowToast: {message}, Color: {color}");
         _message = message;
         _color = string.IsNullOrWhiteSpace(color) ? "info" : color;
-     
 
         InvokeAsync(StateHasChanged); // Triggers OnAfterRenderAsync
+
+        _ = ClearToastAsync(); // Schedule clearing the toast
+    }
+
+    private async Task ClearToastAsync()
+    {
+        // Give time for the toast to display (e.g., 5 seconds)
+        await Task.Delay(5000);
+
+        _message = "";
+        _color = "info";
+        await InvokeAsync(StateHasChanged); // Refresh UI
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

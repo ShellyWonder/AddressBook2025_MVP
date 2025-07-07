@@ -245,14 +245,8 @@
     private void ShowToastMessage(string message)
     {
         toastMessage = message;
-        if (message.Contains("wrong"))
-        {
-            messageColor = "danger";
-        }
-        else
-        {
-            messageColor = "success";
-        }
+        var color = message.Contains("wrong") ? "danger" : "success";
+        ToastService.Show(message, color);
         messageID = Guid.NewGuid();
     }
 }
