@@ -1,6 +1,7 @@
 ﻿@*ToastMessage Component *@
+@using AddressBook2025.Client.Services
 @implements IAsyncDisposable
-@inject AddressBook2025.Client.Services.ToastService ToastService
+@inject ToastService ToastService
 @inject IJSRuntime JS
 
 @if (!string.IsNullOrEmpty(_message))
@@ -33,43 +34,65 @@
     private string _color = "info";
     //allows for the toast div to show if the js fails
     private bool jsFailed = false;
+    private bool _shouldShowToast = false;
+    private bool _initializedJS = false;
 
 
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        // subscribe to the event to listen for toast notifications
+        Console.WriteLine("[ToastMessage] Subscribing to ToastService.OnShow");
         ToastService.OnShow += ShowToast;
-        try
+
+        // Try to play any queued toast
+        var queued = ToastService.GetQueuedToast();
+        if (queued is not null)
         {
-            toastJS = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/UIComponents/ToastMessage.razor.js");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Toast Init Error] {ex.Message}");
-            jsFailed = true;
+            ShowToast(queued.Value.Message, queued.Value.Color);
         }
     }
 
     private void ShowToast(string message, string color = "info")
     {
-        _ = InvokeAsync(async () =>
-        {
-            _message = message;
-            _color = string.IsNullOrWhiteSpace(color) ? "info" : color;
-            StateHasChanged();
-            await Task.Delay(50); // allow render before JS call
+        Console.WriteLine($"[ToastMessage] ShowToast: {message}, Color: {color}");
+        _message = message;
+        _color = string.IsNullOrWhiteSpace(color) ? "info" : color;
+     
 
-            if (toastJS is not null)
+        InvokeAsync(StateHasChanged); // Triggers OnAfterRenderAsync
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_initializedJS)
+        {
+            try
+            {
+                toastJS = await JS.InvokeAsync<IJSObjectReference>("import", "/js/toastMessage.js");
+                Console.WriteLine("[ToastMessage] JS module loaded");
+                _initializedJS = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ToastMessage] JS import failed: {ex.Message}");
+                jsFailed = true;
+                return;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(_message) && toastJS is not null)
+        {
+            Console.WriteLine("[ToastMessage] Calling JS: initToast()");
+            try
             {
                 await toastJS.InvokeVoidAsync("initToast", toastElement);
             }
-            else
+            catch (Exception ex)
             {
-                jsFailed = true;
+                Console.WriteLine($"[ToastMessage] JS initToast failed: {ex.Message}");
             }
-        });
+        }
     }
+
 
     // when importing a Js file, it needs to be disposed of to prevent memory issues
     public async ValueTask DisposeAsync()
