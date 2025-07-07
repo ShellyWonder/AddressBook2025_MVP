@@ -1,5 +1,5 @@
 ﻿@* ContactActionBar *@
-
+@inject NavigationManager Nav
 <div class="fs-4">
     <a class="me-3 editIcons" href="/contacts/edit/@ContactId">
         <i class="bi bi-pencil-fill text-success" title="Edit Contact" aria-label="Edit Contact"></i>
@@ -11,7 +11,7 @@
 
     @if (DisplayVariant == "Category")
     {
-        <a class="me-3 editIcons" href="/contacts/edit/@ContactId">
+        <a class="me-3 editIcons" @onclick="NavigateToEditWithToast">
             <i class="bi bi-trash-fill text-danger" title="Edit contact to remove from category" aria-label="Edit contact to remove from category"></i>
         </a>
     }
@@ -47,4 +47,6 @@
     /// </summary>
     [Parameter]
     public string DisplayVariant { get; set; } = "default";
+    //navigate to edit contact with a flag that indicates it is from a category
+    private void NavigateToEditWithToast() => Nav.NavigateTo($"/contacts/edit/{ContactId}?fromCategory=true");
 }

@@ -5,6 +5,7 @@
 
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
+@inject ToastService toastService
 
 @inherits AuthenticatedComponentBase
 
@@ -13,9 +14,13 @@
 @if (contact is not null)
 {
     <div class="container">
+
         <h2 class="mt-3">Edit @EditName</h2>
-            <div class="p-3 my-3 glass-cf-style">
+        <div class="p-3 my-3 glass-cf-style">
             <ContactForm Contact="contact" OnSubmit="HandleSubmit" />
+        </div>
+        <div style="position: fixed; bottom: 1rem; right: 1rem; z-index: 1055;">
+            <ToastMessage />
         </div>
     </div>
 }
@@ -25,15 +30,29 @@
     [Parameter]
     public int ContactId { get; set; }
 
-   public ContactDTO? contact;
+    // this picks up ?fromCategory=true flag from ContactActionBar component
+    [Parameter, SupplyParameterFromQuery(Name = "fromCategory")]
+    public bool FromCategory { get; set; } 
+
+    public ContactDTO? contact;
     private string EditName => contact?.FullName ?? "Loading . . .";
+    private bool _toastShown;
 
     protected override async Task OnInitializedWithAuthAsync()
     {
-       
+
         contact = await contactService.GetContactByIdAsync(ContactId, UserInfo!.UserId);
         if (contact is null) navManager.NavigateTo("/contacts");
 
+    }
+
+    protected override void  OnAfterRender(bool firstRender)
+    {
+        if (firstRender && FromCategory && !_toastShown)
+        {
+            _toastShown = true;
+            toastService.Show("Edit contact to remove from category", "info");
+        }
     }
 
     private async Task HandleSubmit(ContactDTO contact)
