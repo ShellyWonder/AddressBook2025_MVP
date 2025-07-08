@@ -1,0 +1,34 @@
+﻿@*SearchResults *@
+@page "/searchresults"
+@attribute [Authorize]
+@rendermode InteractiveAuto
+
+@using AddressBook2025.Client.Components
+
+@inject IContactDTOService contactService
+@inject ToastService toastService
+@inject NavigationManager nav
+
+@inherits AuthenticatedComponentBase
+
+@code {
+    [SupplyParameterFromQuery] public string? SearchTerm { get; set; }
+    private IEnumerable<ContactDTO> results = Enumerable.Empty<ContactDTO>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            results = await contactService.SearchContactsAsync(SearchTerm, UserInfo!.UserId);
+
+            if (!results.Any())
+            {
+                toastService.Show($"I did not find a match to '{SearchTerm}'. Please try again or create a new contact.", "warning");
+            }
+        }
+        else
+        {
+            nav.NavigateTo("/contacts");
+        }
+    }
+}

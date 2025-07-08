@@ -57,8 +57,7 @@
             @if (HasContacts)
             {
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
-                    @foreach (var contact in contacts!.OrderBy(c => c.LastName)
-                                    .ThenBy(c => c.FirstName))
+                    @foreach (var contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
                     {
                         <div class="col">
                             <ContactCard Contact="contact" OnDelete="DeleteContact" />
@@ -66,22 +65,15 @@
                     }
                 </div>
             }
-            else
+            else if (string.IsNullOrWhiteSpace(SearchTerm) && CategoryId is null)
             {
                 <div class="d-flex justify-content-center">
                     <!-- Restrict the width once and let everything inside follow it -->
                     <div class="text-center" style="max-width:22rem;">
-                        <!-- image -->
-                        <img src="img/shrug.png"
-                             class="img-fluid"
-                             alt="Cartoon person shrugging" />
-
-                        <!-- headline -->
+                        <img src="img/shrug.png" class="img-fluid" alt="Cartoon person shrugging" />
                         <p class="fs-4 mb-3 yellow no-contacts-headline ">
                             No contacts found.
                         </p>
-
-                        <!-- CTA button -->
                         <NavLink class="btn btn-primary w-100 rounded-pill border border-1 btnShadow"
                                  href="/contacts/create">
                             Let&rsquo;s Create a Contact
@@ -209,8 +201,7 @@
                 { nameof(CategoryId), null } // not receiving data from the category filter
         };
 
-        string url = navManager.GetUriWithQueryParameters(queryParameters);
-        // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
+        string url = $"/searchresults?searchTerm={searchInput}";        
         navManager.NavigateTo(url);
     }
 
