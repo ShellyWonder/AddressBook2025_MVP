@@ -11,6 +11,10 @@
         <div class="col">
             <h1>@Contact?.FullName</h1>
         </div>
+        @if (HasContacts)
+        {
+            <CreateContactBtn />
+        }
         @if (ContactLoaded && Contact is not null)
         {
             <div class="row">
@@ -34,6 +38,7 @@
     private bool ContactLoaded = true;
     private string? messageColor;
     private string? toastMessage;
+    private bool HasContacts => Contact != null;
     private Guid messageID = Guid.NewGuid();
 
     protected override async Task OnInitializedWithAuthAsync()

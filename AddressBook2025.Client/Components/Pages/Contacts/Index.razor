@@ -24,12 +24,8 @@
         </div>
         @if (HasContacts)
         {
-            <div class="col text-end">
-                <NavLink class="btn btn-primary rounded pill"
-                         href="/contacts/create">
-                    Create New Contact
-                </NavLink>
-            </div>
+            <CreateContactBtn />
+
         }
 
     </div>
@@ -46,7 +42,7 @@
 
                 <!-- #region TOAST MESSAGE -->
                 <div class="mt-3">
-                        <ToastMessage />
+                    <ToastMessage />
                 </div>
                 <!-- #endregion -->
             </div>
@@ -88,7 +84,7 @@
 
 @code {
 
-    
+
     [SupplyParameterFromQuery]
     private int? CategoryId { get; set; }
 
@@ -109,11 +105,11 @@
 
     protected override async Task OnInitializedWithAuthAsync()
     {
-        
+
         try
         {
             categories = await categoryService.GetCategoriesAsync(UserInfo!.UserId);
-           
+
         }
         catch (Exception ex)
         {
@@ -201,7 +197,7 @@
                 { nameof(CategoryId), null } // not receiving data from the category filter
         };
 
-        string url = $"/searchresults?searchTerm={searchInput}";        
+        string url = $"/searchresults?searchTerm={searchInput}";
         navManager.NavigateTo(url);
     }
 
@@ -217,7 +213,6 @@
         // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
         navManager.NavigateTo(url);
     }
-
 
     private void ShowToastMessage(string message)
     {
