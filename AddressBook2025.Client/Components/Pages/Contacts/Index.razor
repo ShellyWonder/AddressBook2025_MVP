@@ -91,18 +91,12 @@
     [SupplyParameterFromQuery]
     private string? SearchTerm { get; set; }
 
-    [SupplyParameterFromQuery]
-    private string? Message { get; set; }
-
     private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
     private IEnumerable<CategoryDTO>? categories = Array.Empty<CategoryDTO>();
 
     private bool HasContacts => contacts?.Any() == true;
     private string? searchInput;
-    private string? toastMessage;
-    private string? messageColor;
-    private Guid messageID = Guid.NewGuid();
-
+   
     protected override async Task OnInitializedWithAuthAsync()
     {
 
@@ -167,7 +161,7 @@
             var showToast = await JS.InvokeAsync<string>("sessionStorage.getItem", "showAddToast");
             if (showToast == "true")
             {
-                ToastService.Show("Browse contacts and hit the <i class='bi bi-pencil-fill text-success'></i> to add a contact to a category.", "info");
+                ToastService.Show("Tip:Browse contacts and hit the <i class='bi bi-pencil-fill text-success'></i> to add a contact to a category.");
                 await JS.InvokeVoidAsync("sessionStorage.removeItem", "showAddToast");
             }
         }
@@ -214,13 +208,8 @@
         navManager.NavigateTo(url);
     }
 
-    private void ShowToastMessage(string message)
-    {
-        toastMessage = message;
-        var color = message.Contains("wrong") ? "danger" : "success";
-        ToastService.Show(message, color);
-        messageID = Guid.NewGuid();
-    }
+    private void ShowToastMessage(string message) => ToastService.Show(message);
+    
 }
 
 
