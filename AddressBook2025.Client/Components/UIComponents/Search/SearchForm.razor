@@ -1,24 +1,28 @@
-﻿@*  SearchForm.razor  *@
-<form OnValidSubmit="HandleSearch">
-    <div class="input-group mb-3">
-        <InputText class="form-control border-0 rounded-2 ps-1"
-                   type="search"
-                   placeholder="Search Contacts by First, Last or Full Name"
-                   @bind-Value="SearchTerm" />
-        <input type="submit" class="btn btn-primary" value="Search" />
-    </div>
-</form>
+﻿@*  SearchForm.razor  *@  
+@using AddressBook2025.Client.Models  
 
-@code {
-    [Parameter]
-    public string? SearchTerm { get; set; }
+<EditForm Model="@ContactSearchModel" OnValidSubmit="HandleSearch">  
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="input-group mb-3">  
+        <InputText class="form-control border-0 rounded-2 ps-1"  
+                   type="search"  
+                   placeholder="Search Contacts by First, Last or Full Name"  
+                   @bind-Value="ContactSearchModel.SearchTerm" />  
+        <input type="submit" class="btn btn-primary" value="Search" />  
+    </div>  
+</EditForm>  
 
-    [Parameter]
-    public EventCallback<string?> OnSearch { get; set; }
+@code {  
+    
+    [Parameter]  
+    public EventCallback<string?> OnSearch { get; set; }  
 
-    private async Task HandleSearch()
-    {
-        await OnSearch.InvokeAsync(SearchTerm);
-    }
+    private ContactSearchModel ContactSearchModel { get; set; } = new ContactSearchModel();  
+
+
+    private async Task HandleSearch()  
+    {   // Send the validated value back to the parent
+        await OnSearch.InvokeAsync(ContactSearchModel.SearchTerm);  
+    }  
 }
-
