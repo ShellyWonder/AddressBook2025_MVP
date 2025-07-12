@@ -14,12 +14,21 @@
 </EditForm>  
 
 @code {  
-    
+    [Parameter]
+    public string? SearchTerm { get; set; }
+
     [Parameter]  
     public EventCallback<string?> OnSearch { get; set; }  
 
     private ContactSearchModel ContactSearchModel { get; set; } = new ContactSearchModel();  
 
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(ContactSearchModel.SearchTerm))
+        {
+            ContactSearchModel.SearchTerm = SearchTerm;
+        }
+    }
 
     private async Task HandleSearch()  
     {   // Send the validated value back to the parent

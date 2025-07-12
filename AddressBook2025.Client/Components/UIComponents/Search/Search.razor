@@ -2,27 +2,31 @@
  
     <!-- Search.razor -->
 <div class="mb-3 sideNav">
-<SearchForm SearchTerm="@SearchTerm" OnSearch="OnSearch" />
+    <SearchForm OnSearch="@(term => HandleSearch(term))" />
     <CategoryFilter Categories="@Categories"
                     SelectedCategoryId="@CategoryId"
                     OnCategorySelected="OnCategorySelected" />
 </div>
 
 @code {
-    [Parameter]
-    public string? SearchTerm { get; set; }
-
-    [Parameter]
-    public int? CategoryId { get; set; }
 
     [Parameter]
     public IEnumerable<CategoryDTO>? Categories { get; set; }
+
+    [Parameter]
+    public int? CategoryId { get; set; }
 
     [Parameter]
     public EventCallback<string?> OnSearch { get; set; }
 
     [Parameter]
     public EventCallback<int?> OnCategorySelected { get; set; }
+    
+    //passes the search term to host component(page)
+    private async Task HandleSearch(string? term)
+    {
+        await OnSearch.InvokeAsync(term);
+    }
 }
 
 
