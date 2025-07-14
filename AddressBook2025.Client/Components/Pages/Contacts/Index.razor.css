@@ -1,4 +1,19 @@
-﻿.yellow{
+﻿.sideNav {
+    border-radius: .5rem;
+    border-color: var(--sjw-theme-500);
+    border-style: solid;
+    border-width: 2px;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-top: 1rem;
+    background-color: var(--sjw-theme-150);
+    height: fit-content;
+    box-shadow: 0 0 .7rem var(--sjw-theme-500);
+}
+
+.yellow{
         color: yellow;
 }
 

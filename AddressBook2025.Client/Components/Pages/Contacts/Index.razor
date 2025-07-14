@@ -4,6 +4,7 @@
 @rendermode InteractiveAuto
 
 @using AddressBook2025.Client.Components.BaseComponents
+@using AddressBook2025.Client.Models
 @using AddressBook2025.Client.Services
 
 @inject ICategoryDTOService categoryService
@@ -38,7 +39,7 @@
         {
             <div class="col-12 col-lg-4">
                 <div class="mb-3 sideNav">
-                    <form @onsubmit="SearchContacts">
+                    @* <form @onsubmit="SearchContacts">
                         <div class="input-group mb-3">
                             <InputText class="form-control border-0 rounded-2 ps-1"
                                        type="search"
@@ -46,7 +47,18 @@
                                        @bind-Value="searchInput" />
                             <input type="submit" class="btn btn-primary" value="Search" />
                         </div>
-                    </form>
+                    </form> *@
+                    <EditForm Model="@ContactSearchModel" OnValidSubmit="HandleSearch">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="input-group mb-3">
+                            <InputText class="form-control border-0 rounded-2 ps-1"
+                                       type="search"
+                                       placeholder="Search Contacts by First, Last or Full Name"
+                                       @bind-Value="ContactSearchModel.SearchTerm" />
+                            <input type="submit" class="btn btn-primary" value="Search" />
+                        </div>
+                    </EditForm>
                     <div>
                         <label class="form-label mt-4">Filter by Category</label>
                         @*bind-Value captures the Id, then bind-Value:after runs the method *@
@@ -110,6 +122,7 @@
 </div>
 
 @code {
+    private ContactSearchModel ContactSearchModel { get; set; } = new ContactSearchModel();
 
 
     [SupplyParameterFromQuery]
@@ -127,8 +140,28 @@
     private bool HasContacts => contacts?.Any() == true;
     private string? searchInput;
     private string? toastMessage;
-    private string? messageColor;
-    private Guid messageID = Guid.NewGuid();
+
+
+
+    private async Task HandleSearch()
+    {
+        if (string.IsNullOrWhiteSpace(ContactSearchModel.SearchTerm))
+        {
+            ShowToastMessage("Please enter a valid search term.");
+            return;
+        }
+
+        try
+        {
+            contacts = await contactService.SearchContactsAsync(ContactSearchModel.SearchTerm, UserInfo!.UserId);
+            ShowToastMessage($"Search results for '{ContactSearchModel.SearchTerm}' displayed.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            ShowToastMessage("Oops! Something went wrong. Please try again later.");
+        }
+    }
 
     protected override async Task OnInitializedWithAuthAsync()
     {
@@ -244,10 +277,9 @@
 
     private void ShowToastMessage(string message)
     {
-        toastMessage = message;
-        var color = message.Contains("wrong") ? "danger" : "success";
-        ToastService.Show(message, color);
-        messageID = Guid.NewGuid();
+
+        ToastService.Show(message);
+
     }
 }
 
