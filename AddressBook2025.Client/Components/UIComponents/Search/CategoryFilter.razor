@@ -1,15 +1,17 @@
 ﻿<!-- CategoryFilter.razor -->
-<label class="form-label mt-4">Filter by Category</label>
-<InputSelect class="form-select"
-             @bind-Value="SelectedCategoryId"
-             @bind-Value:after="OnCategorySelectedInternal">
-    <option value="">All Categories</option>
-    @foreach (var category in Categories ?? Enumerable.Empty<CategoryDTO>())
-    {
-        <option value="@category.Id">@category.Name</option>
-    }
-</InputSelect>
 
+<div>
+    <label class="form-label mt-4">Filter by Category</label>
+    <InputSelect class="form-select"
+                 @bind-Value="SelectedCategoryId"
+                 @bind-Value:after="OnCategorySelectedInternal">
+        <option value="">All Categories</option>
+        @foreach (var category in Categories ?? Enumerable.Empty<CategoryDTO>())
+        {
+            <option value="@category.Id">@category.Name</option>
+        }
+    </InputSelect>
+</div>
 @code {
     [Parameter]
     public int? SelectedCategoryId { get; set; }

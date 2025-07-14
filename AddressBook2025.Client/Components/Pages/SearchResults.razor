@@ -69,7 +69,7 @@
 
                             <NavLink class="btn btn-primary w-50 rounded-pill border border-1 btnShadow"
                                      href="/contacts/create">
-                                <i class="bi bi-person-add"></i> Let&rsquo;s Create a Contact
+                                <i class="bi bi-person-fill-add"></i> Let&rsquo;s Create a Contact
                             </NavLink>
                             <NavLink class="btn btn-primary w-50 rounded-pill border border-1 btnShadow"
                                      href="/contacts">
@@ -85,7 +85,9 @@
 </div>
 
 @code {
-    public string? SearchTerm;
+    [SupplyParameterFromQuery]
+    private string? SearchTerm{ get; set; }
+
 
     [SupplyParameterFromQuery]
     private int? CategoryId { get; set; }

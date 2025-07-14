@@ -11,7 +11,7 @@
 @inject IContactDTOService contactService
 @inject NavigationManager navManager
 @inject IJSRuntime JS
-@inject ToastService ToastService
+@inject ToastService toastService
 
 @inherits AuthenticatedComponentBase
 
@@ -25,19 +25,16 @@
         @if (HasContacts)
         {
             <CreateContactBtn />
-
         }
-
     </div>
     <div class="row gy-3">
         @* Search / Filter column – render only when contacts exist *@
         @if (HasContacts)
         {
             <div class="col-12 col-lg-4">
-                <Search SearchTerm="@searchInput"
-                        CategoryId="@CategoryId"
+                <Search CategoryId="@CategoryId"
                         Categories="@categories"
-                        OnSearch="HandleSearch"
+                        OnSearch="@(term => HandleSearch(term))"
                         OnCategorySelected="HandleCategorySelected" />
 
                 <!-- #region TOAST MESSAGE -->
@@ -53,7 +50,7 @@
             @if (HasContacts)
             {
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1">
-                    @foreach (var contact in contacts!.OrderBy(c => c.LastName).ThenBy(c => c.FirstName))
+                    @foreach (var contact in contacts!)
                     {
                         <div class="col">
                             <ContactCard Contact="contact" OnDelete="DeleteContact" />
@@ -61,19 +58,26 @@
                     }
                 </div>
             }
-            else if (string.IsNullOrWhiteSpace(SearchTerm) && CategoryId is null)
+            else
             {
                 <div class="d-flex justify-content-center">
-                    <!-- Restrict the width once and let everything inside follow it -->
+
                     <div class="text-center" style="max-width:22rem;">
                         <img src="img/shrug.png" class="img-fluid" alt="Cartoon person shrugging" />
                         <p class="fs-4 mb-3 yellow no-contacts-headline ">
-                            No contacts found.
+                            I did not find a contact named "@SearchTerm". Do you want to create a contact?
                         </p>
-                        <NavLink class="btn btn-primary w-100 rounded-pill border border-1 btnShadow"
-                                 href="/contacts/create">
-                            Let&rsquo;s Create a Contact
-                        </NavLink>
+                        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+
+                            <NavLink class="btn btn-primary w-50 rounded-pill border border-1 btnShadow"
+                                     href="/contacts/create">
+                                <i class="bi bi-person-add"></i> Let&rsquo;s Create a Contact
+                            </NavLink>
+                            <NavLink class="btn btn-primary w-50 rounded-pill border border-1 btnShadow"
+                                     href="/contacts">
+                                <i class="bi bi-person-fill-x"></i> No Thanks
+                            </NavLink>
+                        </div>
                     </div>
                 </div>
             }
@@ -83,89 +87,62 @@
 </div>
 
 @code {
-
+    [SupplyParameterFromQuery]
+    public string? SearchTerm { get; set; }
 
     [SupplyParameterFromQuery]
     private int? CategoryId { get; set; }
 
-    [SupplyParameterFromQuery]
-    private string? SearchTerm { get; set; }
 
     private IEnumerable<ContactDTO>? contacts = Array.Empty<ContactDTO>();
     private IEnumerable<CategoryDTO>? categories = Array.Empty<CategoryDTO>();
 
     private bool HasContacts => contacts?.Any() == true;
     private string? searchInput;
-   
-    protected override async Task OnInitializedWithAuthAsync()
-    {
 
-        try
-        {
-            categories = await categoryService.GetCategoriesAsync(UserInfo!.UserId);
-
-        }
-        catch (Exception ex)
-        {
-
-            Console.WriteLine(ex);
-        }
-    }
 
     protected override async Task OnParametersSetAsync()
     {
-        searchInput = SearchTerm;
-
-        if (!string.IsNullOrEmpty(Message))
+        
+        // if statement is redundant because of validation check in the searchForm component
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
         {
-            ShowToastMessage(Message);
+            contacts = await contactService.SearchContactsAsync(SearchTerm.Trim(), UserInfo!.UserId);
+
         }
 
-        try
-        {
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                CategoryId = null;
-                contacts = await contactService.SearchContactsAsync(SearchTerm, UserInfo!.UserId);
-
-                // 🔥 Show warning toast if no results found
-                if (!contacts.Any())
-                {
-                    ToastService.Show(
-                        $"I did not find a match to '{SearchTerm}'. Please try again or create a new contact.",
-                        "warning"
-                    );
-                }
-            }
-            else if (CategoryId is not null or 0)
-            {
-                SearchTerm = null;
-                contacts = await contactService.GetContactsByCategoryAsync(CategoryId!.Value, UserInfo!.UserId);
-            }
-            else
-            {
-                contacts = await contactService.GetContactsAsync(UserInfo!.UserId);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            ShowToastMessage("Oops! Something went wrong. Please refresh the page or try again later.");
-        }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void HandleSearch(string? term)
     {
-        if (firstRender)
+        Console.WriteLine($"[DEBUG] Search term passed to HandleSearch: '{term}'");
+        ///Dictionary  = key value pair -- Name, value -- gets the search term in and out of the parameter
+        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
         {
-            var showToast = await JS.InvokeAsync<string>("sessionStorage.getItem", "showAddToast");
-            if (showToast == "true")
-            {
-                ToastService.Show("Tip:Browse contacts and hit the <i class='bi bi-pencil-fill text-success'></i> to add a contact to a category.");
-                await JS.InvokeVoidAsync("sessionStorage.removeItem", "showAddToast");
-            }
-        }
+                { nameof(SearchTerm), term }, //receiving data from the searchInput
+                { nameof(CategoryId), null } // not receiving data from the category filter
+        };
+
+        var url = navManager.GetUriWithQueryParameters("/searchresults", queryParameters);
+        navManager.NavigateTo(url);
     }
+
+    private void HandleCategorySelected()
+    {
+
+        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
+        {
+             { nameof(SearchTerm), null }, //not receiving data from the searchInput
+             { nameof(CategoryId), CategoryId } // receiving data from the category filter
+        };
+
+        string url = navManager.GetUriWithQueryParameters(queryParameters);
+        // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
+        navManager.NavigateTo(url);
+    }
+
+    private void ShowToastMessage(string message) => toastService.Show(message);
+
 
     private async Task DeleteContact(int Id)
     {
@@ -182,34 +159,5 @@
 
         }
     }
-    private void HandleSearch()
-    {
-        ///Dictionary  = key value pair -- Name, value -- gets the search term in and out of the parameter
-        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
-        {
-                { nameof(SearchTerm), searchInput }, //receiving data from the searchInput
-                { nameof(CategoryId), null } // not receiving data from the category filter
-        };
 
-        string url = $"/searchresults?searchTerm={searchInput}";
-        navManager.NavigateTo(url);
-    }
-
-    private void HandleCategorySelected()
-    {
-        Dictionary<string, object?> queryParameters = new Dictionary<string, object?>
-        {
-             { nameof(SearchTerm), null }, //not receiving data from the searchInput
-             { nameof(CategoryId), CategoryId } // receiving data from the category filter
-        };
-
-        string url = navManager.GetUriWithQueryParameters(queryParameters);
-        // page navigating back to itself(page refresh with the search term), grabbing the queryParameters
-        navManager.NavigateTo(url);
-    }
-
-    private void ShowToastMessage(string message) => ToastService.Show(message);
-    
 }
-
-
